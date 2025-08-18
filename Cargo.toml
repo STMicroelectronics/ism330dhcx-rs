@@ -1,0 +1,25 @@
+[package]
+name = "ism330dhcx-rs"
+version = "1.0.0"
+edition = "2024"
+rust-version = "1.87.0"
+readme = "README.md"
+license = "BSD-3-Clause"
+categories = ["embedded", "no-std"]
+keywords = ["st", "mems", "imu", "mlc", "fsm"]
+repository = "https://github.com/STMicroelectronics/ism330dhcx-rs"
+description = """
+  Platform-agnostic driver for the ISM330DHCX high-accuracy 3D accelerometer and gyroscope with
+  ultra-low noise, smart FIFO, sensor hub, MLC, FSM, and advanced industrial features.
+"""
+
+[dependencies]
+bitfield-struct = "0.11.0"
+embedded-hal = "1.0.0"
+derive_more = { version = "2.0.1", default-features = false, features = [ "try_from" ] }
+st-mems-bus = "1.0.0"
+st-mem-bank-macro = "1.0.0"
+
+# By default the bit order is assumed ad Least Significant Bit.
+[features]
+bit_order_msb = []
