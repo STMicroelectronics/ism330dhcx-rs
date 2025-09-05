@@ -17,10 +17,11 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 
 fn main() {
-    // Parse ucf file
-    let input_file = Path::new("ism330dhcx_six_d_position.ucf");
+    // Source file:
+    // https://github.com/STMicroelectronics/st-mems-machine-learning-core/blob/main/examples/6d_position_recognition/ism330dhcx/ism330dhcx_six_d_position.json
+    let input_file = Path::new("ism330dhcx_six_d_position.json");
     let output_file = Path::new("src/mlc_config.rs");
-    parser::generate_rs_from_ucf(&input_file, &output_file, "SIX_D");
+    parser::generate_rs_from_json(input_file, output_file, "SIX_D", "ISM330DHCX", false);
 
     // Put `memory.x` in our output directory and ensure it's
     // on the linker search path.
@@ -36,7 +37,7 @@ fn main() {
     // here, we ensure the build script is only re-run when
     // `memory.x` is changed.
     println!("cargo:rerun-if-changed=memory.x");
-    println!("cargo:rerun-if-changed=ism330dhcx_six_d_position.ucf");
+    println!("cargo:rerun-if-changed=ism330dhcx_six_d_position.json");
 
     // Specify linker arguments.
 

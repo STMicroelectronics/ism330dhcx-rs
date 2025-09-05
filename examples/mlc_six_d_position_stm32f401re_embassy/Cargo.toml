@@ -22,10 +22,10 @@ embedded-hal-bus = { version = "0.3", features = ["async"]}
 embedded-io-async = "0.6.1"
 
 ism330dhcx-rs = "1.0.0"
-st-mems-reg-config-conv = { version = "1.0.0" }
+st-mems-reg-config-conv = { version = "1.0.2" }
 
 [build-dependencies]
-st-mems-reg-config-conv = { version = "1.0.0", features = ["std"] }
+st-mems-reg-config-conv = { version = "1.0.2", features = ["std"] }
 
 [[bin]]
 name = "mlc_six_d_position_stm32f401re_embassy"
