@@ -37,8 +37,8 @@ The ISM330DHCX sensor is connected to the STM32F401RE via I2C1 on pins PB8 (SCL)
 - The ISM330DHCX sensor is instantiated over I2C with the high I2C address.
 - The sensor's device ID is read and verified to ensure correct sensor presence.
 - The sensor is reset to default configuration and the program waits until reset completes.
-- The embedded FSM is configured by loading a predefined Universal Configuration File (UCF) program for free fall detection.
-- This UCF configuration is parsed and applied at runtime using a dedicated crate that converts the UCF data into register writes.
+- The embedded FSM is configured by loading a predefined Universal Configuration File (JSON) program for free fall detection.
+- This JSON configuration is parsed and applied at runtime using a dedicated crate that converts the JSON data into register writes.
 - Interrupt routing is configured to route the FSM interrupt to the INT1 pin.
 - Interrupt notification mode is set to pulsed embedded latched mode.
 
@@ -66,7 +66,7 @@ The ISM330DHCX sensor is connected to the STM32F401RE via I2C1 on pins PB8 (SCL)
 - UART output uses blocking writes for simplicity.
 - The environment is `#![no_std]` and `#![no_main]` for embedded Rust applications.
 - Panic behavior is handled via ITM debug output.
-- The FSM configuration is generated from a UCF file and applied at runtime using a crate that interprets UCF data into sensor register writes.
+- The FSM configuration is generated from a JSON file and applied at runtime using a crate that interprets JSON data into sensor register writes.
 - FSM programs must be reloaded after each power cycle of the sensor.
 
 ---
@@ -80,4 +80,4 @@ The ISM330DHCX sensor is connected to the STM32F401RE via I2C1 on pins PB8 (SCL)
 
 ---
 
-*This documentation explains the embedded Rust program for free fall detection using the ISM330DHCX sensor's embedded Finite State Machine on the STM32F401RE Nucleo-64 board, integrating configuration details generated from a UCF file and applied at runtime.*
+*This documentation explains the embedded Rust program for free fall detection using the ISM330DHCX sensor's embedded Finite State Machine on the STM32F401RE Nucleo-64 board, integrating configuration details generated from a JSON file and applied at runtime.*

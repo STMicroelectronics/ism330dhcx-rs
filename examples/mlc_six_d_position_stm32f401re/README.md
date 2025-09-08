@@ -2,7 +2,7 @@
 
 This example demonstrates how to configure and use the ISM330DHCX inertial sensor’s embedded Machine Learning Core (MLC) to detect six-direction orientation events (X, Y, Z axes pointing up or down) on an STM32F401RE Nucleo-64 board. The sensor is interfaced via I2C, and detected orientation events are output over UART in real-time.
 
-The MLC configuration is generated at build time from a UCF (Universal Configuration File) created using STMicroelectronics’ Unico GUI tool, which abstracts the complex register programming required for the MLC.
+The MLC configuration is generated at build time from a JSON (Universal Configuration File) created using STMicroelectronics’ Unico GUI tool, which abstracts the complex register programming required for the MLC.
 
 ---
 
@@ -41,7 +41,7 @@ The ISM330DHCX sensor is connected to the STM32F401RE via I2C1 on pins PB8 (SCL)
 - The ISM330DHCX sensor is initialized over I2C with the high I2C address.
 - The sensor ID is read and verified to ensure proper communication.
 - The sensor is reset to default configuration and the code waits for reset completion.
-- The Machine Learning Core (MLC) is configured by writing a predefined UCF sequence (`SIX_D`) to the sensor registers. This configures the sensor to detect six orientation states.
+- The Machine Learning Core (MLC) is configured by writing a predefined JSON sequence (`SIX_D`) to the sensor registers. This configures the sensor to detect six orientation states.
 - Interrupt routing is set to output MLC events on interrupt pin 1.
 - Interrupt notification mode is configured to pulsed embedded latched mode.
 
@@ -72,7 +72,7 @@ The ISM330DHCX sensor is connected to the STM32F401RE via I2C1 on pins PB8 (SCL)
 ## Notes
 
 - The example uses the ISM330DHCX’s embedded Machine Learning Core (MLC) to offload orientation detection from the MCU, reducing power consumption.
-- The MLC configuration is generated from a UCF file created with STMicroelectronics’ Unico GUI tool, which allows configuring filters, features, decision trees, and meta-classifiers.
+- The MLC configuration is generated from a JSON file created with STMicroelectronics’ Unico GUI tool, which allows configuring filters, features, decision trees, and meta-classifiers.
 - The ISM330DHCX MLC supports up to 8 decision trees running simultaneously, with configurable features such as mean, variance, energy, peak-to-peak, zero-crossings, and more.
 - The MLC output data rate and window length affect latency and accuracy.
 - Interrupts are used to efficiently detect events without continuous polling.
