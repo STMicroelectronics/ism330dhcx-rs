@@ -62,7 +62,7 @@ pub enum Reg {
 
     /// Who Am I register.
     ///
-    /// Read-only register containing the device ID. Default value: `0x6A`.
+    /// Read-only register containing the device ID. Default value: `0x6B`.
     WhoAmI = 0x0F,
 
     /// Accelerometer control register 1.
@@ -541,6 +541,17 @@ pub struct Int1Ctrl {
 
     #[bits(1, default = 0)]
     pub den_drdy_flag: u8,
+}
+
+/// Who Am I (R).
+///
+/// It's value is fixed at 0x6B. Contains the device id.
+#[register(address = Reg::WhoAmI, access_type = Ism330dhcx, generics = 2)]
+#[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
+#[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
+pub struct WhoAmI {
+    #[bits(8, default = 0x6B)]
+    pub id: u8
 }
 
 /// Interrupt 2 Control Register (R/W).

@@ -1052,9 +1052,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///     * `u8`: Buffer that stores data read.
     ///     * `Err`: Returns an error if the operation fails.
     pub fn device_id_get(&mut self) -> Result<u8, Error<B::Error>> {
-        let mut arr: [u8; 1] = [0];
-        self.read_from_register(Reg::WhoAmI as u8, &mut arr)?;
-        Ok(arr[0])
+        WhoAmI::read(self).map(|reg| reg.id())
     }
 
     /// Software reset. Restore the default values in user registers.
