@@ -1438,7 +1438,7 @@ pub struct Md2Cfg {
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct InternalFreqFine {
     #[bits(8, access = RO)]
-    pub freq_fine: u8,
+    pub freq_fine: i8,
 }
 
 /// Interrupt OIS register (R).

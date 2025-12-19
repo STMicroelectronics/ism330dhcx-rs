@@ -1003,10 +1003,10 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     /// # Returns
     ///
     /// * `Result`
-    ///     * `u8`: Change the values of freq_fine in reg INTERNAL_FREQ_FINE.
+    ///     * `i8`: Change the values of freq_fine in reg INTERNAL_FREQ_FINE.
     ///     * `Err`: Returns an error if the operation fails.
     pub fn odr_cal_reg_get(&mut self) -> Result<i8, Error<B::Error>> {
-        Ok(InternalFreqFine::read(self)?.freq_fine().cast_signed())
+        Ok(InternalFreqFine::read(self)?.freq_fine())
     }
 
     /// Data-ready pulsed / latched mode.
