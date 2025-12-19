@@ -800,8 +800,8 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///     * `()`
     ///     * `Err`: Returns an error if the operation fails.
     pub fn timestamp_rst(&mut self) -> Result<(), Error<B::Error>> {
-        let rst_val: u8 = 0xAA;
-        self.write_to_register(Reg::Timestamp2 as u8, &[rst_val])?;
+        self.write_to_register(Reg::Timestamp2 as u8, &[0xAA])?;
+        self.tim.delay_us(150); // AN5398 Section 6.4
         Ok(())
     }
 
