@@ -290,62 +290,61 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     /// * `Result`
     ///     * `()`
     ///     * `Err`: Returns an error if the operation fails.
-    pub fn xl_data_rate_set(&mut self, val: OdrXl) -> Result<(), Error<B::Error>> {
+    pub fn xl_data_rate_set(&mut self, mut val: OdrXl) -> Result<(), Error<B::Error>> {
         let fsm_enable = self.fsm_enable_get()?;
         let mlc_enable = self.mlc_get()?;
 
-        let mut odr_xl = if (fsm_enable.fsm_enable_a.into_bits()
-            | fsm_enable.fsm_enable_b.into_bits())
-            > PROPERTY_ENABLE
+        val = if fsm_enable.fsm_enable_a.into_bits() != PROPERTY_DISABLE
+            || fsm_enable.fsm_enable_b.into_bits() != PROPERTY_DISABLE
         {
             let fsm_odr = self.fsm_data_rate_get()?;
             match fsm_odr {
                 FsmOdr::_12_5hz => match val {
-                    OdrXl::Off => OdrXl::_12_5hz,
+                    OdrXl::Off | OdrXl::_1_6hz  => OdrXl::_12_5hz,
                     _ => val,
                 },
                 FsmOdr::_26hz => match val {
-                    OdrXl::Off | OdrXl::_12_5hz => OdrXl::_26hz,
+                    OdrXl::Off | OdrXl::_1_6hz | OdrXl::_12_5hz => OdrXl::_26hz,
                     _ => val,
                 },
                 FsmOdr::_52hz => match val {
-                    OdrXl::Off | OdrXl::_12_5hz | OdrXl::_26hz => OdrXl::_52hz,
+                    OdrXl::Off | OdrXl::_1_6hz | OdrXl::_12_5hz | OdrXl::_26hz => OdrXl::_52hz,
                     _ => val,
                 },
                 FsmOdr::_104hz => match val {
-                    OdrXl::Off | OdrXl::_12_5hz | OdrXl::_26hz | OdrXl::_52hz => OdrXl::_104hz,
+                    OdrXl::Off | OdrXl::_1_6hz | OdrXl::_12_5hz | OdrXl::_26hz | OdrXl::_52hz => OdrXl::_104hz,
                     _ => val,
                 },
             }
         } else {
             val
         };
-        odr_xl = if mlc_enable == PROPERTY_ENABLE {
+        val = if mlc_enable == PROPERTY_ENABLE {
             let mlc_odr = self.mlc_data_rate_get()?;
             match mlc_odr {
                 MlcOdr::_12_5hz => match val {
-                    OdrXl::Off => OdrXl::_12_5hz,
+                    OdrXl::Off | OdrXl::_1_6hz => OdrXl::_12_5hz,
                     _ => val,
                 },
                 MlcOdr::_26hz => match val {
-                    OdrXl::Off | OdrXl::_12_5hz => OdrXl::_26hz,
+                    OdrXl::Off | OdrXl::_1_6hz | OdrXl::_12_5hz => OdrXl::_26hz,
                     _ => val,
                 },
                 MlcOdr::_52hz => match val {
-                    OdrXl::Off | OdrXl::_12_5hz | OdrXl::_26hz => OdrXl::_52hz,
+                    OdrXl::Off | OdrXl::_1_6hz | OdrXl::_12_5hz | OdrXl::_26hz => OdrXl::_52hz,
                     _ => val,
                 },
                 MlcOdr::_104hz => match val {
-                    OdrXl::Off | OdrXl::_12_5hz | OdrXl::_26hz | OdrXl::_52hz => OdrXl::_104hz,
+                    OdrXl::Off | OdrXl::_1_6hz | OdrXl::_12_5hz | OdrXl::_26hz | OdrXl::_52hz => OdrXl::_104hz,
                     _ => val,
                 },
             }
         } else {
-            odr_xl
+            val
         };
 
         let mut ctrl1xl = Ctrl1Xl::read(self)?;
-        ctrl1xl.set_odr_xl(odr_xl as u8);
+        ctrl1xl.set_odr_xl(val as u8);
         ctrl1xl.write(self)
     }
 
@@ -401,13 +400,12 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     /// * `Result`
     ///     * `()`
     ///     * `Err`: Returns an error if the operation fails.
-    pub fn gy_data_rate_set(&mut self, val: OdrGy) -> Result<(), Error<B::Error>> {
+    pub fn gy_data_rate_set(&mut self, mut val: OdrGy) -> Result<(), Error<B::Error>> {
         let fsm_enable = self.fsm_enable_get()?;
         let mlc_enable = self.mlc_get()?;
 
-        let mut odr_gy = if (fsm_enable.fsm_enable_a.into_bits()
-            | fsm_enable.fsm_enable_b.into_bits())
-            == PROPERTY_ENABLE
+        val = if fsm_enable.fsm_enable_a.into_bits() != PROPERTY_DISABLE
+            || fsm_enable.fsm_enable_b.into_bits() != PROPERTY_DISABLE
         {
             let fsm_odr = self.fsm_data_rate_get()?;
             match fsm_odr {
@@ -431,7 +429,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
         } else {
             val
         };
-        odr_gy = if mlc_enable == PROPERTY_ENABLE {
+        val = if mlc_enable == PROPERTY_ENABLE {
             let mlc_odr = self.mlc_data_rate_get()?;
             match mlc_odr {
                 MlcOdr::_12_5hz => match val {
@@ -452,11 +450,11 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
                 },
             }
         } else {
-            odr_gy
+            val
         };
 
         let mut ctrl2g = Ctrl2G::read(self)?;
-        ctrl2g.set_odr_g(odr_gy as u8);
+        ctrl2g.set_odr_g(val as u8);
         ctrl2g.write(self)
     }
 
