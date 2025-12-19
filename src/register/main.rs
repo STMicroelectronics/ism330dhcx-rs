@@ -1539,6 +1539,42 @@ pub struct Ctrl3Ois {
     pub fs_xl_ois: u8,
 }
 
+/// Accelerometer X-axis user offser correction (X_OFS_USR) (R/W).
+///
+/// The offset value set in X_OFS_USR is internally subtracted from the acceleration value measured
+/// on the X-axis.
+#[register(address = Reg::XOfsUsr, access_type = Ism330dhcx, generics = 2)]
+#[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
+#[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
+pub struct XOfsUsr {
+    #[bits(8, default = 0)]
+    pub x_ofs_usr: i8,
+}
+
+/// Accelerometer Y-axis user offser correction (Y_OFS_USR) (R/W).
+///
+/// The offset value set in Y_OFS_USR is internally subtracted from the acceleration value measured
+/// on the Y-axis.
+#[register(address = Reg::YOfsUsr, access_type = Ism330dhcx, generics = 2)]
+#[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
+#[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
+pub struct YOfsUsr {
+    #[bits(8, default = 0)]
+    pub y_ofs_usr: i8,
+}
+
+/// Accelerometer Z-axis user offser correction (Z_OFS_USR) (R/W).
+///
+/// The offset value set in Z_OFS_USR is internally subtracted from the acceleration value measured
+/// on the Z-axis.
+#[register(address = Reg::ZOfsUsr, access_type = Ism330dhcx, generics = 2)]
+#[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
+#[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
+pub struct ZOfsUsr {
+    #[bits(8, default = 0)]
+    pub z_ofs_usr: i8,
+}
+
 /// FIFO data output tag register (R).
 ///
 /// The `FIFO_DATA_OUT_TAG` register provides information about the FIFO tag, including parity, count, and sensor type.

@@ -678,8 +678,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///     * `()`
     ///     * `Err`: Returns an error if the operation fails.
     pub fn xl_usr_offset_x_set(&mut self, val: i8) -> Result<(), Error<B::Error>> {
-        self.write_to_register(Reg::XOfsUsr as u8, &[val.cast_unsigned()])?;
-        Ok(())
+        XOfsUsr::new()
+            .with_x_ofs_usr(val)
+            .write(self)
     }
 
     /// Accelerometer X-axis user offset correction expressed in two's
@@ -692,9 +693,8 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///     * `i8`: Buffer that stores data read.
     ///     * `Err`: Returns an error if the operation fails.
     pub fn xl_usr_offset_x_get(&mut self) -> Result<i8, Error<B::Error>> {
-        let mut arr: [u8; 1] = [0];
-        self.read_from_register(Reg::XOfsUsr as u8, &mut arr)?;
-        Ok(arr[0].cast_signed())
+        XOfsUsr::read(self)
+            .map(|reg| reg.x_ofs_usr())
     }
 
     /// Accelerometer Y-axis user offset correction expressed in two's
@@ -711,8 +711,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///     * `()`
     ///     * `Err`: Returns an error if the operation fails.
     pub fn xl_usr_offset_y_set(&mut self, val: i8) -> Result<(), Error<B::Error>> {
-        self.write_to_register(Reg::YOfsUsr as u8, &[val.cast_unsigned()])?;
-        Ok(())
+        YOfsUsr::new()
+            .with_y_ofs_usr(val)
+            .write(self)
     }
 
     /// Accelerometer Y-axis user offset correction expressed in two's
@@ -725,9 +726,8 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///     * `i8`: Buffer that stores data read.
     ///     * `Err`: Returns an error if the operation fails.
     pub fn xl_usr_offset_y_get(&mut self) -> Result<i8, Error<B::Error>> {
-        let mut arr: [u8; 1] = [0];
-        self.read_from_register(Reg::YOfsUsr as u8, &mut arr)?;
-        Ok(arr[0].cast_signed())
+        YOfsUsr::read(self)
+            .map(|reg| reg.y_ofs_usr())
     }
 
     /// Accelerometer Z-axis user offset correction expressed in two's
@@ -744,8 +744,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///     * `()`
     ///     * `Err`: Returns an error if the operation fails.
     pub fn xl_usr_offset_z_set(&mut self, val: i8) -> Result<(), Error<B::Error>> {
-        self.write_to_register(Reg::ZOfsUsr as u8, &[val.cast_unsigned()])?;
-        Ok(())
+        ZOfsUsr::new()
+            .with_z_ofs_usr(val)
+            .write(self)
     }
 
     /// Accelerometer X-axis user offset correction expressed in two's
@@ -758,9 +759,8 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///     * `i8`: Buffer that stores data read.
     ///     * `Err`: Returns an error if the operation fails.
     pub fn xl_usr_offset_z_get(&mut self) -> Result<i8, Error<B::Error>> {
-        let mut arr: [u8; 1] = [0];
-        self.read_from_register(Reg::ZOfsUsr as u8, &mut arr)?;
-        Ok(arr[0].cast_signed())
+        ZOfsUsr::read(self)
+            .map(|reg| reg.z_ofs_usr())
     }
 
     /// Enables user offset on out.
