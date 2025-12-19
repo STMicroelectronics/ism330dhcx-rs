@@ -5369,4 +5369,4 @@ pub enum I2CAddress {
 pub const ISM330DHCX_ID: u8 = 0x6B;
 
 pub const PROPERTY_ENABLE: u8 = 1;
-pub const PROPERTY_DISABLE: u8 = 1;
+pub const PROPERTY_DISABLE: u8 = 0;
