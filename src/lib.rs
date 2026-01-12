@@ -1496,7 +1496,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///     * `Err`: Returns an error if the operation fails.
     pub fn aux_pw_on_ctrl_set(&mut self, val: OisOn) -> Result<(), Error<B::Error>> {
         let mut ctrl7_g = Ctrl7G::read(self)?;
-        ctrl7_g.set_ois_on_en((val as u8) & 0x01);
+        ctrl7_g.set_ois_on_en(((val as u8) & 0x02) >> 1);
         ctrl7_g.set_ois_on((val as u8) & 0x01);
         ctrl7_g.write(self)
     }
@@ -1513,7 +1513,8 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///     * `()`: Interface status (MANDATORY: return Ok(()) -> no Error).
     pub fn aux_pw_on_ctrl_get(&mut self) -> Result<OisOn, Error<B::Error>> {
         let ctrl7_g = Ctrl7G::read(self)?;
-        Ok(OisOn::try_from(ctrl7_g.ois_on()).unwrap_or_default())
+        let val = ctrl7_g.ois_on() | (ctrl7_g.ois_on_en() << 1);
+        Ok(OisOn::try_from(val).unwrap_or_default())
     }
 
     /// The STATUS_SPIAux register is read by the auxiliary SPI.

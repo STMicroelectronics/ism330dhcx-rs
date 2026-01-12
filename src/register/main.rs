@@ -1802,8 +1802,9 @@ pub enum OisPuDis {
 #[try_from(repr)]
 pub enum OisOn {
     #[default]
-    On = 1,
-    OnByAuxInterface = 0,
+    Off                = 0,
+    PrimaryInterfaceOn = 3,
+    AuxInterfaceOn     = 1,
 }
 
 #[repr(u8)]
