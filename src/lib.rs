@@ -5069,7 +5069,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     /// # Arguments
     ///
     /// * `val`: Structure that contains
-    ///     - `slv0_add`: 8 bit i2c device address
+    ///     - `slv0_add`: 7 bit i2c device address
     ///     - `slv0_subadd`: 8 bit register device address
     ///     - `slv0_data`: 8 bit data to write.
     ///
@@ -5081,7 +5081,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     pub fn sh_cfg_write(&mut self, val: &ShCfgWrite) -> Result<(), Error<B::Error>> {
         MemBank::operate_over_sh(self, |state| {
             let mut slv0_add = Slv0Add::default();
-            slv0_add.set_slave0(val.slv0_add >> 1);
+            slv0_add.set_slave0(val.slv0_add);
             slv0_add.set_rw_0(0);
 
             slv0_add.write(state)?;
@@ -5095,7 +5095,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     /// # Arguments
     ///
     /// * `val`: Structure that contains
-    ///     - `slv_add`: 8 bit i2c device address
+    ///     - `slv_add`: 7 bit i2c device address
     ///     - `slv_subadd`: 8 bit register device address
     ///     - `slv_len`: num of bit to read.
     ///
@@ -5106,7 +5106,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     pub fn sh_slv0_cfg_read(&mut self, val: &ShCfgRead) -> Result<(), Error<B::Error>> {
         MemBank::operate_over_sh(self, |state| {
             let mut slv0_add = Slv0Add::default();
-            slv0_add.set_slave0(val.slv_add >> 1);
+            slv0_add.set_slave0(val.slv_add);
             slv0_add.set_rw_0(1);
 
             slv0_add.write(state)?;
@@ -5123,7 +5123,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     /// # Arguments
     ///
     /// * `val`: Structure that contains
-    ///     - `slv_add`: 8 bit i2c device address
+    ///     - `slv_add`: 7 bit i2c device address
     ///     - `slv_subadd`: 8 bit register device address
     ///     - `slv_len`: number of bits to read.
     ///
@@ -5135,7 +5135,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     pub fn sh_slv1_cfg_read(&mut self, val: &ShCfgRead) -> Result<(), Error<B::Error>> {
         MemBank::operate_over_sh(self, |state| {
             let mut slv1_add = Slv1Add::default();
-            slv1_add.set_slave1_add(val.slv_add >> 1);
+            slv1_add.set_slave1_add(val.slv_add);
             slv1_add.set_r_1(1);
 
             slv1_add.write(state)?;
@@ -5152,7 +5152,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     /// # Arguments
     ///
     /// * `val`: Structure that contains
-    ///     - `slv_add`: 8 bit i2c device address
+    ///     - `slv_add`: 7 bit i2c device address
     ///     - `slv_subadd`: 8 bit register device address
     ///     - `slv_len`: number of bits to read.
     ///
@@ -5164,7 +5164,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     pub fn sh_slv2_cfg_read(&mut self, val: &ShCfgRead) -> Result<(), Error<B::Error>> {
         MemBank::operate_over_sh(self, |state| {
             let mut slv2_add = Slv2Add::default();
-            slv2_add.set_slave2_add(val.slv_add >> 1);
+            slv2_add.set_slave2_add(val.slv_add);
             slv2_add.set_r_2(1);
 
             slv2_add.write(state)?;
@@ -5181,7 +5181,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     /// # Arguments
     ///
     /// * `val`: Structure that contains
-    ///     - `uint8_t slv_add`: 8 bit i2c device address
+    ///     - `uint8_t slv_add`: 7 bit i2c device address
     ///     - `uint8_t slv_subadd`: 8 bit register device address
     ///     - `uint8_t slv_len`: num of bit to read
     ///
@@ -5193,7 +5193,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     pub fn sh_slv3_cfg_read(&mut self, val: &ShCfgRead) -> Result<(), Error<B::Error>> {
         MemBank::operate_over_sh(self, |state| {
             let mut slv3_add = Slv3Add::default();
-            slv3_add.set_slave3_add(val.slv_add >> 1);
+            slv3_add.set_slave3_add(val.slv_add);
             slv3_add.set_r_3(1);
 
             slv3_add.write(state)?;
