@@ -495,8 +495,8 @@ pub enum AuxSensOn {
 #[try_from(repr)]
 pub enum ShubPuEn {
     #[default]
-    ExtPullUp = 0,
-    InternalPullUp = 1,
+    InternalPullUpOff = 0,
+    InternalPullUpOn  = 1
 }
 
 #[repr(u8)]
