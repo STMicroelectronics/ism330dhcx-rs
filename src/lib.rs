@@ -3923,7 +3923,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///     * `u8`: Change the values of is_step_det in reg EMB_FUNC_STATUS.
     ///     * `Err`: Returns an error if the operation fails.
     pub fn pedo_step_detect_get(&mut self) -> Result<u8, Error<B::Error>> {
-        MemBank::operate_over_emb(self, |state| Ok(EmbFuncStatus::read(state)?.is_step_det()))
+        Ok(EmbFuncStatusMainpage::read(self)?.is_step_det())
     }
 
     /// Pedometer debounce configuration register (r/w).
