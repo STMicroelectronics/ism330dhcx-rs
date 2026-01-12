@@ -1793,8 +1793,8 @@ pub enum HpmGy {
 #[try_from(repr)]
 pub enum OisPuDis {
     #[default]
-    Disc = 0,
-    Connect = 1,
+    Disc = 1,
+    Connect = 0,
 }
 
 #[repr(u8)]
