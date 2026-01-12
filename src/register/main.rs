@@ -2021,8 +2021,7 @@ pub enum InactEn {
 }
 
 #[repr(u8)]
-#[derive(Clone, Copy, PartialEq, Default, TryFrom)]
-#[try_from(repr)]
+#[derive(Clone, Copy, PartialEq, Default, Debug)]
 pub enum TapPriority {
     #[default]
     Xyz = 0,
@@ -2031,6 +2030,24 @@ pub enum TapPriority {
     Zyx = 3,
     Yzx = 5,
     Zxy = 6,
+}
+
+impl TryFrom<u8> for TapPriority {
+    type Error = ();
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            0b000 => Ok(TapPriority::Xyz),
+            0b001 => Ok(TapPriority::Yxz),
+            0b010 => Ok(TapPriority::Xzy),
+            0b011 => Ok(TapPriority::Zyx),
+            0b100 => Ok(TapPriority::Xyz),
+            0b101 => Ok(TapPriority::Yzx),
+            0b110 => Ok(TapPriority::Zxy),
+            0b111 => Ok(TapPriority::Zyx),
+            _ => Err(())
+        }
+    }
 }
 
 #[repr(u8)]
