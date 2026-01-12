@@ -1872,10 +1872,10 @@ pub enum SimOis {
 #[try_from(repr)]
 pub enum FtypeOis {
     #[default]
-    _351_39hz = 0,
-    _236_63hz = 1,
-    _172_70hz = 2,
-    _937_91hz = 3,
+    _297hz = 0,
+    _222hz = 1,
+    _154hz = 2,
+    _470hz = 3,
 }
 
 #[repr(u8)]
@@ -1884,10 +1884,10 @@ pub enum FtypeOis {
 pub enum HpmOis {
     #[default]
     Disable = 0x00,
-    _016hz = 0x10,
-    _065hz = 0x11,
-    _260hz = 0x12,
-    _1_040hz = 0x13,
+    _16mhz = 0x10,
+    _65mhz = 0x11,
+    _260mhz = 0x12,
+    _1_04hz = 0x13,
 }
 
 #[repr(u8)]
@@ -1921,7 +1921,7 @@ pub enum FilterXlConfOis {
     _33_6hz = 4,
     _16_7hz = 5,
     _8_3hz = 6,
-    _4_11hz = 7,
+    _4_14hz = 7,
 }
 
 #[repr(u8)]
@@ -2084,7 +2084,7 @@ pub enum BdrXl {
     _1667hz = 8,
     _3333hz = 9,
     _6667hz = 10,
-    _6_5hz = 11,
+    _1_6hz = 11,
 }
 
 #[repr(u8)]
@@ -2125,9 +2125,9 @@ pub enum FifoMode {
 pub enum OdrTBatch {
     #[default]
     NotBatched = 0,
-    _52hz = 1,
-    _12_5hx = 2,
-    _1_6hz = 3,
+    _1_6hz = 1,
+    _12_5hz = 2,
+    _52hz = 3,
 }
 
 #[repr(u8)]
@@ -2169,7 +2169,8 @@ pub enum FifoTag {
     Gyro3xC = 0x0D,
     SensorHubSlave0 = 0x0E,
     SensorHubSlave1 = 0x0F,
-    SensorHubSlave3 = 0x10,
+    SensorHubSlave2 = 0x10,
+    SensorHubSlave3 = 0x11,
     StepCounter = 0x12,
     #[default]
     SensorhubNackTag = 0x19,
@@ -2202,8 +2203,8 @@ pub enum DenLh {
 pub enum DenXlG {
     #[default]
     GyData = 0,
-    XlData = 1,
-    GyXlData = 2,
+    XlData = 2,
+    GyXlData = 1,
 }
 
 #[repr(u8)]
