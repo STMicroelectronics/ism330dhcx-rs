@@ -19,6 +19,7 @@ embedded-hal = "1.0.0"
 derive_more = { version = "2.0.1", default-features = false, features = [ "try_from" ] }
 st-mems-bus = "1.0.1"
 st-mem-bank-macro = "1.0.0"
+half = "2.7.1"
 
 # By default the bit order is assumed ad Least Significant Bit.
 [features]

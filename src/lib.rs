@@ -6,6 +6,7 @@ use embedded_hal::{
     spi::SpiDevice,
 };
 use st_mems_bus::{BusOperation, EmbAdvFunctions, MemBankFunctions};
+use half::f16;
 
 pub mod prelude;
 pub mod register;
@@ -4181,8 +4182,13 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///
     /// * `Result`
     ///     * `()`.
-    pub fn mag_soft_iron_set(&mut self, val: &[u16; 6]) -> Result<(), Error<B::Error>> {
-        MagSiMatrix(*val).write(self)
+    pub fn mag_soft_iron_set(&mut self, val: &[f16; 6]) -> Result<(), Error<B::Error>> {
+        let mut raw: [u16; 6] = [0; 6];
+        for (dst, src) in raw.iter_mut().zip(val.iter()) {
+            *dst = src.to_bits();
+        }
+
+        MagSiMatrix(raw).write(self)
     }
 
     /// Soft-iron (3x3 symmetric) matrix correction register (r/w).
@@ -4201,8 +4207,17 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     /// * `Result`
     ///     * `()`
     ///     * `Err`: Returns an error if the operation fails.
-    pub fn mag_soft_iron_get(&mut self) -> Result<[i16; 6], Error<B::Error>> {
-        Ok(MagSiMatrix::read(self)?.0.map(u16::cast_signed))
+    pub fn mag_soft_iron_get(&mut self) -> Result<[f16; 6], Error<B::Error>> {
+        // Read raw u16 matrix
+        let raw = MagSiMatrix::read(self)?.0; // raw: [u16; 6]
+
+        // Convert to f16
+        let mut vals: [f16; 6] = [f16::from_bits(0); 6];
+        for (dst, src) in vals.iter_mut().zip(raw.iter()) {
+            *dst = f16::from_bits(*src);
+        }
+
+        Ok(vals)
     }
 
     /// Magnetometer Z-axis coordinates rotation (to be aligned to
@@ -4725,8 +4740,8 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     /// # Arguments
     ///
     /// * `buff`: buffer that contains data to write.
-    pub fn mlc_mag_sensitivity_set(&mut self, val: u16) -> Result<(), Error<B::Error>> {
-        MlcMagSensitivity::from_bits(val).write(self)
+    pub fn mlc_mag_sensitivity_set(&mut self, val: f16) -> Result<(), Error<B::Error>> {
+        MlcMagSensitivity::from_bits(val.to_bits()).write(self)
     }
 
     /// External magnetometer sensitivity value register for
@@ -4739,10 +4754,10 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     /// # Returns
     ///
     /// * `Result`
-    ///     * `u16`: Sensitivity value.
+    ///     * `f16`: Sensitivity value.
     ///     * `Err`: Returns an error if the operation fails.
-    pub fn mlc_mag_sensitivity_get(&mut self) -> Result<u16, Error<B::Error>> {
-        Ok(MlcMagSensitivity::read(self)?.mlc_mag_s())
+    pub fn mlc_mag_sensitivity_get(&mut self) -> Result<f16, Error<B::Error>> {
+        Ok(f16::from_bits(MlcMagSensitivity::read(self)?.mlc_mag_s()))
     }
 
     /// Sensor hub output registers.
