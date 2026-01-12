@@ -1000,6 +1000,7 @@ pub struct MlcSrcReg {
     pub mlc_src: u8,
 }
 
+#[derive(Clone, Debug, Default)]
 pub struct EmbFsmEnable {
     pub fsm_enable_a: FsmEnableA,
     pub fsm_enable_b: FsmEnableB,

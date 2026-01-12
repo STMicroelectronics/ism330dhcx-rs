@@ -1606,7 +1606,7 @@ pub enum FsXl {
 }
 
 #[repr(u8)]
-#[derive(Clone, Copy, PartialEq, Default, TryFrom)]
+#[derive(Clone, Copy, PartialEq, Default, Debug, TryFrom)]
 #[try_from(repr)]
 pub enum OdrXl {
     #[default]
@@ -1638,7 +1638,7 @@ pub enum FsGy {
 }
 
 #[repr(u8)]
-#[derive(Clone, Copy, PartialEq, Default, TryFrom)]
+#[derive(Clone, Copy, PartialEq, Default, Debug, TryFrom)]
 #[try_from(repr)]
 pub enum OdrGy {
     #[default]
