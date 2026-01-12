@@ -3476,8 +3476,8 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
         let fifo_status2 = FifoStatus2::read(self)?;
 
         Ok(u16::from_le_bytes([
-            fifo_status2.diff_fifo(),
             fifo_status1.diff_fifo(),
+            fifo_status2.diff_fifo(),
         ]))
     }
 
