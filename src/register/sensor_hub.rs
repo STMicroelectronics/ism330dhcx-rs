@@ -522,8 +522,8 @@ pub enum WriteOnce {
 #[try_from(repr)]
 pub enum ShubOdr {
     #[default]
-    _104hz = 0,
-    _52hz = 1,
-    _26hz = 2,
-    _13hz = 3,
+    _104hz  = 0,
+    _52hz   = 1,
+    _26hz   = 2,
+    _12_5hz = 3,
 }
