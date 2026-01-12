@@ -3808,7 +3808,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///     * `Err`: Returns an error if the operation fails.
     pub fn den_mark_axis_x_set(&mut self, val: u8) -> Result<(), Error<B::Error>> {
         let mut ctrl9_xl = Ctrl9Xl::read(self)?;
-        ctrl9_xl.set_den_z(val);
+        ctrl9_xl.set_den_x(val);
         ctrl9_xl.write(self)
     }
 
@@ -3821,7 +3821,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///     * `Err`: Returns an error if the operation fails.
     pub fn den_mark_axis_x_get(&mut self) -> Result<u8, Error<B::Error>> {
         let ctrl9_xl = Ctrl9Xl::read(self)?;
-        Ok(ctrl9_xl.den_z())
+        Ok(ctrl9_xl.den_x())
     }
 
     /// DEN value stored in LSB of Y-axis.
