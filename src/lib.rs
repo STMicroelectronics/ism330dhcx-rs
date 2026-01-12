@@ -1288,6 +1288,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     }
 
     /// Gyroscope low pass filter 1 bandwidth.
+    /// See Table 58 on Datasheet for more information
     ///
     /// # Arguments
     ///
@@ -3388,7 +3389,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///
     /// # Arguments
     ///
-    /// * `val`: Get the values of trig_counter_bdr 
+    /// * `val`: Get the values of trig_counter_bdr
     ///   in reg COUNTER_BDR_REG1.
     ///
     /// # Returns
