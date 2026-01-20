@@ -496,7 +496,7 @@ pub enum AuxSensOn {
 pub enum ShubPuEn {
     #[default]
     InternalPullUpOff = 0,
-    InternalPullUpOn  = 1
+    InternalPullUpOn = 1,
 }
 
 #[repr(u8)]
@@ -522,8 +522,8 @@ pub enum WriteOnce {
 #[try_from(repr)]
 pub enum ShubOdr {
     #[default]
-    _104hz  = 0,
-    _52hz   = 1,
-    _26hz   = 2,
+    _104hz = 0,
+    _52hz = 1,
+    _26hz = 2,
     _12_5hz = 3,
 }

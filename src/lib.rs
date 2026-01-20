@@ -5,8 +5,8 @@ use embedded_hal::{
     i2c::{I2c, SevenBitAddress},
     spi::SpiDevice,
 };
-use st_mems_bus::{BusOperation, EmbAdvFunctions, MemBankFunctions};
 use half::f16;
+use st_mems_bus::{BusOperation, EmbAdvFunctions, MemBankFunctions};
 
 pub mod prelude;
 pub mod register;
@@ -301,7 +301,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
             let fsm_odr = self.fsm_data_rate_get()?;
             match fsm_odr {
                 FsmOdr::_12_5hz => match val {
-                    OdrXl::Off | OdrXl::_1_6hz  => OdrXl::_12_5hz,
+                    OdrXl::Off | OdrXl::_1_6hz => OdrXl::_12_5hz,
                     _ => val,
                 },
                 FsmOdr::_26hz => match val {
@@ -313,7 +313,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
                     _ => val,
                 },
                 FsmOdr::_104hz => match val {
-                    OdrXl::Off | OdrXl::_1_6hz | OdrXl::_12_5hz | OdrXl::_26hz | OdrXl::_52hz => OdrXl::_104hz,
+                    OdrXl::Off | OdrXl::_1_6hz | OdrXl::_12_5hz | OdrXl::_26hz | OdrXl::_52hz => {
+                        OdrXl::_104hz
+                    }
                     _ => val,
                 },
             }
@@ -336,7 +338,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
                     _ => val,
                 },
                 MlcOdr::_104hz => match val {
-                    OdrXl::Off | OdrXl::_1_6hz | OdrXl::_12_5hz | OdrXl::_26hz | OdrXl::_52hz => OdrXl::_104hz,
+                    OdrXl::Off | OdrXl::_1_6hz | OdrXl::_12_5hz | OdrXl::_26hz | OdrXl::_52hz => {
+                        OdrXl::_104hz
+                    }
                     _ => val,
                 },
             }
@@ -679,9 +683,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///     * `()`
     ///     * `Err`: Returns an error if the operation fails.
     pub fn xl_usr_offset_x_set(&mut self, val: i8) -> Result<(), Error<B::Error>> {
-        XOfsUsr::new()
-            .with_x_ofs_usr(val)
-            .write(self)
+        XOfsUsr::new().with_x_ofs_usr(val).write(self)
     }
 
     /// Accelerometer X-axis user offset correction expressed in two's
@@ -694,8 +696,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///     * `i8`: Buffer that stores data read.
     ///     * `Err`: Returns an error if the operation fails.
     pub fn xl_usr_offset_x_get(&mut self) -> Result<i8, Error<B::Error>> {
-        XOfsUsr::read(self)
-            .map(|reg| reg.x_ofs_usr())
+        XOfsUsr::read(self).map(|reg| reg.x_ofs_usr())
     }
 
     /// Accelerometer Y-axis user offset correction expressed in two's
@@ -712,9 +713,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///     * `()`
     ///     * `Err`: Returns an error if the operation fails.
     pub fn xl_usr_offset_y_set(&mut self, val: i8) -> Result<(), Error<B::Error>> {
-        YOfsUsr::new()
-            .with_y_ofs_usr(val)
-            .write(self)
+        YOfsUsr::new().with_y_ofs_usr(val).write(self)
     }
 
     /// Accelerometer Y-axis user offset correction expressed in two's
@@ -727,8 +726,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///     * `i8`: Buffer that stores data read.
     ///     * `Err`: Returns an error if the operation fails.
     pub fn xl_usr_offset_y_get(&mut self) -> Result<i8, Error<B::Error>> {
-        YOfsUsr::read(self)
-            .map(|reg| reg.y_ofs_usr())
+        YOfsUsr::read(self).map(|reg| reg.y_ofs_usr())
     }
 
     /// Accelerometer Z-axis user offset correction expressed in two's
@@ -745,9 +743,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///     * `()`
     ///     * `Err`: Returns an error if the operation fails.
     pub fn xl_usr_offset_z_set(&mut self, val: i8) -> Result<(), Error<B::Error>> {
-        ZOfsUsr::new()
-            .with_z_ofs_usr(val)
-            .write(self)
+        ZOfsUsr::new().with_z_ofs_usr(val).write(self)
     }
 
     /// Accelerometer X-axis user offset correction expressed in two's
@@ -760,8 +756,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T> {
     ///     * `i8`: Buffer that stores data read.
     ///     * `Err`: Returns an error if the operation fails.
     pub fn xl_usr_offset_z_get(&mut self) -> Result<i8, Error<B::Error>> {
-        ZOfsUsr::read(self)
-            .map(|reg| reg.z_ofs_usr())
+        ZOfsUsr::read(self).map(|reg| reg.z_ofs_usr())
     }
 
     /// Enables user offset on out.

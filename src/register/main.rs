@@ -551,7 +551,7 @@ pub struct Int1Ctrl {
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct WhoAmI {
     #[bits(8, default = 0x6B)]
-    pub id: u8
+    pub id: u8,
 }
 
 /// Interrupt 2 Control Register (R/W).
@@ -1802,9 +1802,9 @@ pub enum OisPuDis {
 #[try_from(repr)]
 pub enum OisOn {
     #[default]
-    Off                = 0,
+    Off = 0,
     PrimaryInterfaceOn = 3,
-    AuxInterfaceOn     = 1,
+    AuxInterfaceOn = 1,
 }
 
 #[repr(u8)]
@@ -2045,7 +2045,7 @@ impl TryFrom<u8> for TapPriority {
             0b101 => Ok(TapPriority::Yzx),
             0b110 => Ok(TapPriority::Zxy),
             0b111 => Ok(TapPriority::Zyx),
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }
