@@ -13,6 +13,9 @@ description = """
   ultra-low noise, smart FIFO, sensor hub, MLC, FSM, and advanced industrial features.
 """
 
+[lib]
+doctest = false
+
 [dependencies]
 bitfield-struct = "0.11.0"
 embedded-hal = "1.0.0"
