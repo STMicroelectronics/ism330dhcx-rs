@@ -1,25 +1,14 @@
-use crate::BusOperation;
-use crate::MemBankFunctions;
-use crate::{Error, Ism330dhcx};
-use derive_more::TryFrom;
-use embedded_hal::delay::DelayNs;
-use st_mem_bank_macro::mem_bank;
-
-use crate::register::{
-    embedded::{
-        EmbFuncInt1, EmbFuncInt2, EmbFuncStatus, FsmInt1A, FsmInt1B, FsmInt2A, FsmInt2B,
-        FsmStatusA, FsmStatusB, MlcInt1, MlcInt2,
-    },
-    main::{
-        AllIntSrc, D6dSrc, Int1Ctrl, Int2Ctrl, Md1Cfg, Md2Cfg, MlcStatusMainpage, StatusReg,
-        TapSrc, WakeUpSrc,
-    },
-};
-
 pub mod advanced;
 pub mod embedded;
 pub mod main;
 pub mod sensor_hub;
+
+use super::{
+    BusOperation, DelayNs, Error, Ism330dhcx, MemBankFunctions, only_async, only_sync, prelude::*,
+};
+
+use derive_more::TryFrom;
+use st_mem_bank_macro::mem_bank;
 
 #[repr(u8)]
 #[derive(Clone, Copy, PartialEq, Default, TryFrom, Debug)]
@@ -29,9 +18,9 @@ pub enum MemBank {
     #[default]
     #[main]
     UserBank = 0,
-    #[state(SensHubBankState, fn_name = "operate_over_sh")]
+    #[state(SensHubBank, fn_name = "operate_over_sh")]
     SensorHubBank = 1,
-    #[state(EmbFuncBankState, fn_name = "operate_over_emb")]
+    #[state(EmbBank, fn_name = "operate_over_emb")]
     EmbeddedFuncBank = 2,
 }
 

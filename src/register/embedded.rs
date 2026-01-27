@@ -1,12 +1,11 @@
-use crate::BusOperation;
-use crate::Error;
+use super::super::{
+    BusOperation, DelayNs, Error, Ism330dhcx, RegisterOperation, SensorOperation, bisync,
+    register::EmbBank,
+};
+
 use bitfield_struct::bitfield;
 use derive_more::TryFrom;
-use embedded_hal::delay::DelayNs;
-
 use st_mem_bank_macro::register;
-
-use super::EmbFuncBankState;
 
 #[repr(u8)]
 #[derive(Clone, Copy, PartialEq)]
@@ -294,7 +293,7 @@ pub enum EmbReg {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::PageSel, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::PageSel, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct PageSel {
@@ -311,7 +310,7 @@ pub struct PageSel {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::EmbFuncEnA, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::EmbFuncEnA, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct EmbFuncEnA {
@@ -334,7 +333,7 @@ pub struct EmbFuncEnA {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::EmbFuncEnB, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::EmbFuncEnB, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct EmbFuncEnB {
@@ -357,7 +356,7 @@ pub struct EmbFuncEnB {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::EmbFuncInt1, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::EmbFuncInt1, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct EmbFuncInt1 {
@@ -382,7 +381,7 @@ pub struct EmbFuncInt1 {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::PageAddress, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::PageAddress, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct PageAddress {
@@ -397,7 +396,7 @@ pub struct PageAddress {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::PageValue, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::PageValue, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct PageValue {
@@ -412,7 +411,7 @@ pub struct PageValue {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::FsmInt1A, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::FsmInt1A, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FsmInt1A {
@@ -441,7 +440,7 @@ pub struct FsmInt1A {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::FsmInt1B, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::FsmInt1B, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FsmInt1B {
@@ -470,7 +469,7 @@ pub struct FsmInt1B {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::MlcInt1, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::MlcInt1, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct MlcInt1 {
@@ -499,7 +498,7 @@ pub struct MlcInt1 {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::EmbFuncInt2, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::EmbFuncInt2, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct EmbFuncInt2 {
@@ -524,7 +523,7 @@ pub struct EmbFuncInt2 {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::FsmInt2A, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::FsmInt2A, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FsmInt2A {
@@ -553,7 +552,7 @@ pub struct FsmInt2A {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::FsmInt2B, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::FsmInt2B, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FsmInt2B {
@@ -582,7 +581,7 @@ pub struct FsmInt2B {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::MlcInt2, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::MlcInt2, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct MlcInt2 {
@@ -611,7 +610,7 @@ pub struct MlcInt2 {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::EmbFuncStatus, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::EmbFuncStatus, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct EmbFuncStatus {
@@ -636,7 +635,7 @@ pub struct EmbFuncStatus {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::FsmStatusA, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::FsmStatusA, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FsmStatusA {
@@ -665,7 +664,7 @@ pub struct FsmStatusA {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::FsmStatusB, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::FsmStatusB, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FsmStatusB {
@@ -694,7 +693,7 @@ pub struct FsmStatusB {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::MlcStatus, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::MlcStatus, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct MlcStatus {
@@ -723,7 +722,7 @@ pub struct MlcStatus {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::PageRw, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::PageRw, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct PageRw {
@@ -742,7 +741,7 @@ pub struct PageRw {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::EmbFuncFifoCfg, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::EmbFuncFifoCfg, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct EmbFuncFifoCfg {
@@ -761,7 +760,7 @@ pub struct EmbFuncFifoCfg {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::FsmEnableA, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::FsmEnableA, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FsmEnableA {
@@ -790,7 +789,7 @@ pub struct FsmEnableA {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::FsmEnableB, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::FsmEnableB, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FsmEnableB {
@@ -812,7 +811,7 @@ pub struct FsmEnableB {
     pub fsm16_en: u8,
 }
 
-#[register(address = EmbReg::FsmLongCounterL, access_type = EmbFuncBankState, generics = 2)]
+#[register(address = EmbReg::FsmLongCounterL, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u16, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u16, order = Lsb))]
 pub struct FsmLongCounter {
@@ -827,7 +826,7 @@ pub struct FsmLongCounter {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::FsmLongCounterClear, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::FsmLongCounterClear, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FsmLongCounterClear {
@@ -844,7 +843,7 @@ pub struct FsmLongCounterClear {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::FsmOuts1, access_type = EmbFuncBankState, generics = 2)]
+#[register(address = EmbReg::FsmOuts1, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FsmOutsReg {
@@ -873,7 +872,7 @@ pub struct FsmOutsReg {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::EmbFuncOdrCfgB, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::EmbFuncOdrCfgB, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct EmbFuncOdrCfgB {
@@ -892,7 +891,7 @@ pub struct EmbFuncOdrCfgB {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::EmbFuncOdrCfgC, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::EmbFuncOdrCfgC, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct EmbFuncOdrCfgC {
@@ -904,7 +903,7 @@ pub struct EmbFuncOdrCfgC {
     not_used_02: u8,
 }
 
-#[register(address = EmbReg::StepCounterL, access_type = EmbFuncBankState, generics = 2)]
+#[register(address = EmbReg::StepCounterL, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u16, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u16, order = Lsb))]
 pub struct StepCounter {
@@ -919,7 +918,7 @@ pub struct StepCounter {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::EmbFuncSrc, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::EmbFuncSrc, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct EmbFuncSrc {
@@ -946,7 +945,7 @@ pub struct EmbFuncSrc {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::EmbFuncInitA, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::EmbFuncInitA, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct EmbFuncInitA {
@@ -969,7 +968,7 @@ pub struct EmbFuncInitA {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::EmbFuncInitB, access_type = EmbFuncBankState , generics = 2)]
+#[register(address = EmbReg::EmbFuncInitB, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct EmbFuncInitB {
@@ -992,7 +991,7 @@ pub struct EmbFuncInitB {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = EmbReg::Mlc0Src, access_type = EmbFuncBankState, generics = 2)]
+#[register(address = EmbReg::Mlc0Src, access_type = "Ism330dhcx<B, T, EmbBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct MlcSrcReg {

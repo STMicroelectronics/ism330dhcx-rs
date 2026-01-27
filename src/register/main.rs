@@ -1,10 +1,10 @@
-use crate::BusOperation;
-use crate::DelayNs;
-use crate::Error;
-use crate::Ism330dhcx;
+use super::super::{
+    BusOperation, DelayNs, Error, Ism330dhcx, RegisterOperation, SensorOperation, bisync,
+    register::{BankState, MainBank},
+};
+
 use bitfield_struct::bitfield;
 use derive_more::TryFrom;
-
 use st_mem_bank_macro::{named_register, register};
 
 #[repr(u8)]
@@ -358,7 +358,7 @@ pub enum Reg {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::FuncCfgAccess, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::FuncCfgAccess, access_type = "Ism330dhcx<B, T, S>", multi_state = true)]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FuncCfgAccess {
@@ -376,7 +376,7 @@ pub struct FuncCfgAccess {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::PinCtrl, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::PinCtrl, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct PinCtrl {
@@ -397,7 +397,7 @@ pub struct PinCtrl {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::FifoCtrl1, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::FifoCtrl1, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FifoCtrl1 {
@@ -412,7 +412,7 @@ pub struct FifoCtrl1 {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::FifoCtrl2, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::FifoCtrl2, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FifoCtrl2 {
@@ -445,7 +445,7 @@ pub struct FifoCtrl2 {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::FifoCtrl3, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::FifoCtrl3, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FifoCtrl3 {
@@ -463,7 +463,7 @@ pub struct FifoCtrl3 {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::FifoCtrl4, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::FifoCtrl4, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FifoCtrl4 {
@@ -487,7 +487,7 @@ pub struct FifoCtrl4 {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::CounterBdrReg1, access_type = Ism330dhcx, generics = 2, order = Inverse)]
+#[register(address = Reg::CounterBdrReg1, access_type = "Ism330dhcx<B, T, MainBank>", order = Inverse)]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u16, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u16, order = Lsb))]
 pub struct CounterBdrReg {
@@ -514,7 +514,7 @@ pub struct CounterBdrReg {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::Int1Ctrl, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::Int1Ctrl, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Int1Ctrl {
@@ -546,7 +546,7 @@ pub struct Int1Ctrl {
 /// Who Am I (R).
 ///
 /// It's value is fixed at 0x6B. Contains the device id.
-#[register(address = Reg::WhoAmI, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::WhoAmI, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct WhoAmI {
@@ -561,7 +561,7 @@ pub struct WhoAmI {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::Int2Ctrl, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::Int2Ctrl, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Int2Ctrl {
@@ -597,7 +597,7 @@ pub struct Int2Ctrl {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::Ctrl1Xl, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::Ctrl1Xl, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Ctrl1Xl {
@@ -621,7 +621,7 @@ pub struct Ctrl1Xl {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::Ctrl2G, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::Ctrl2G, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Ctrl2G {
@@ -639,7 +639,7 @@ pub struct Ctrl2G {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::Ctrl3C, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::Ctrl3C, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Ctrl3C {
@@ -675,7 +675,7 @@ pub struct Ctrl3C {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::Ctrl4C, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::Ctrl4C, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Ctrl4C {
@@ -704,7 +704,7 @@ pub struct Ctrl4C {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::Ctrl5C, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::Ctrl5C, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Ctrl5C {
@@ -727,7 +727,7 @@ pub struct Ctrl5C {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::Ctrl6C, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::Ctrl6C, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Ctrl6C {
@@ -748,7 +748,7 @@ pub struct Ctrl6C {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::Ctrl7G, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::Ctrl7G, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Ctrl7G {
@@ -775,7 +775,7 @@ pub struct Ctrl7G {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::Ctrl8Xl, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::Ctrl8Xl, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Ctrl8Xl {
@@ -800,7 +800,7 @@ pub struct Ctrl8Xl {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::Ctrl9Xl, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::Ctrl9Xl, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Ctrl9Xl {
@@ -827,7 +827,7 @@ pub struct Ctrl9Xl {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::Ctrl10C, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::Ctrl10C, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Ctrl10C {
@@ -846,7 +846,7 @@ pub struct Ctrl10C {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::AllIntSrc, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::AllIntSrc, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct AllIntSrc {
@@ -875,7 +875,7 @@ pub struct AllIntSrc {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::WakeUpSrc, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::WakeUpSrc, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct WakeUpSrc {
@@ -904,7 +904,7 @@ pub struct WakeUpSrc {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::TapSrc, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::TapSrc, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct TapSrc {
@@ -933,7 +933,7 @@ pub struct TapSrc {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::D6dSrc, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::D6dSrc, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct D6dSrc {
@@ -955,7 +955,7 @@ pub struct D6dSrc {
     pub den_drdy: u8,
 }
 
-#[register(address = Reg::OutTempL, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::OutTempL, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u16, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u16, order = Lsb))]
 pub struct OutTempReg {
@@ -963,14 +963,14 @@ pub struct OutTempReg {
     pub temp: i16,
 }
 
-#[named_register(address = Reg::OutxLG, access_type = Ism330dhcx, generics = 2)]
+#[named_register(address = Reg::OutxLG, access_type = "Ism330dhcx<B, T, MainBank>")]
 pub struct OutXYZG {
     pub x: i16,
     pub y: i16,
     pub z: i16,
 }
 
-#[named_register(address = Reg::OutxLA, access_type = Ism330dhcx, generics = 2)]
+#[named_register(address = Reg::OutxLA, access_type = "Ism330dhcx<B, T, MainBank>")]
 pub struct OutXYZA {
     pub x: i16,
     pub y: i16,
@@ -984,7 +984,7 @@ pub struct OutXYZA {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::StatusRegOrSpiaux, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::StatusRegOrSpiaux, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct StatusReg {
@@ -1005,7 +1005,7 @@ pub struct StatusReg {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::StatusRegOrSpiaux, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::StatusRegOrSpiaux, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct StatusSpiaux {
@@ -1026,7 +1026,7 @@ pub struct StatusSpiaux {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::EmbFuncStatusMainpage, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::EmbFuncStatusMainpage, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct EmbFuncStatusMainpage {
@@ -1051,7 +1051,7 @@ pub struct EmbFuncStatusMainpage {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::FsmStatusAMainpage, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::FsmStatusAMainpage, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FsmStatusAMainpage {
@@ -1080,7 +1080,7 @@ pub struct FsmStatusAMainpage {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::FsmStatusBMainpage, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::FsmStatusBMainpage, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FsmStatusBMainpage {
@@ -1109,7 +1109,7 @@ pub struct FsmStatusBMainpage {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::MlcStatusMainpage, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::MlcStatusMainpage, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct MlcStatusMainpage {
@@ -1138,7 +1138,7 @@ pub struct MlcStatusMainpage {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::StatusMasterMainpage, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::StatusMasterMainpage, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct StatusMasterMainpage {
@@ -1165,7 +1165,7 @@ pub struct StatusMasterMainpage {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::FifoStatus1, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::FifoStatus1, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FifoStatus1 {
@@ -1180,7 +1180,7 @@ pub struct FifoStatus1 {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::FifoStatus2, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::FifoStatus2, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FifoStatus2 {
@@ -1200,7 +1200,7 @@ pub struct FifoStatus2 {
     pub fifo_wtm_ia: u8,
 }
 
-#[register(address = Reg::Timestamp0, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::Timestamp0, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u32, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u32, order = Lsb))]
 pub struct TimestampReg {
@@ -1215,7 +1215,7 @@ pub struct TimestampReg {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::TapCfg0, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::TapCfg0, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct TapCfg0 {
@@ -1244,7 +1244,7 @@ pub struct TapCfg0 {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::TapCfg1, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::TapCfg1, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct TapCfg1 {
@@ -1261,7 +1261,7 @@ pub struct TapCfg1 {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::TapCfg2, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::TapCfg2, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct TapCfg2 {
@@ -1280,7 +1280,7 @@ pub struct TapCfg2 {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::TapThs6d, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::TapThs6d, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct TapThs6d {
@@ -1299,7 +1299,7 @@ pub struct TapThs6d {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::IntDur2, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::IntDur2, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct IntDur2 {
@@ -1318,7 +1318,7 @@ pub struct IntDur2 {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::WakeUpThs, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::WakeUpThs, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct WakeUpThs {
@@ -1337,7 +1337,7 @@ pub struct WakeUpThs {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::WakeUpDur, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::WakeUpDur, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct WakeUpDur {
@@ -1358,7 +1358,7 @@ pub struct WakeUpDur {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::FreeFall, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::FreeFall, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FreeFall {
@@ -1375,7 +1375,7 @@ pub struct FreeFall {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::Md1Cfg, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::Md1Cfg, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Md1Cfg {
@@ -1404,7 +1404,7 @@ pub struct Md1Cfg {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::Md2Cfg, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::Md2Cfg, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Md2Cfg {
@@ -1433,7 +1433,7 @@ pub struct Md2Cfg {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::InternalFreqFine, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::InternalFreqFine, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct InternalFreqFine {
@@ -1449,7 +1449,7 @@ pub struct InternalFreqFine {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::IntOis, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::IntOis, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct IntOis {
@@ -1473,7 +1473,7 @@ pub struct IntOis {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::Ctrl1Ois, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::Ctrl1Ois, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Ctrl1Ois {
@@ -1501,7 +1501,7 @@ pub struct Ctrl1Ois {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::Ctrl2Ois, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::Ctrl2Ois, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Ctrl2Ois {
@@ -1525,7 +1525,7 @@ pub struct Ctrl2Ois {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::Ctrl3Ois, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::Ctrl3Ois, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Ctrl3Ois {
@@ -1543,7 +1543,7 @@ pub struct Ctrl3Ois {
 ///
 /// The offset value set in X_OFS_USR is internally subtracted from the acceleration value measured
 /// on the X-axis.
-#[register(address = Reg::XOfsUsr, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::XOfsUsr, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct XOfsUsr {
@@ -1555,7 +1555,7 @@ pub struct XOfsUsr {
 ///
 /// The offset value set in Y_OFS_USR is internally subtracted from the acceleration value measured
 /// on the Y-axis.
-#[register(address = Reg::YOfsUsr, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::YOfsUsr, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct YOfsUsr {
@@ -1567,7 +1567,7 @@ pub struct YOfsUsr {
 ///
 /// The offset value set in Z_OFS_USR is internally subtracted from the acceleration value measured
 /// on the Z-axis.
-#[register(address = Reg::ZOfsUsr, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::ZOfsUsr, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct ZOfsUsr {
@@ -1582,7 +1582,7 @@ pub struct ZOfsUsr {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = Reg::FifoDataOutTag, access_type = Ism330dhcx, generics = 2)]
+#[register(address = Reg::FifoDataOutTag, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FifoDataOutTag {

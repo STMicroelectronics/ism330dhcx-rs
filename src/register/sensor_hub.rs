@@ -1,12 +1,11 @@
-use crate::BusOperation;
-use crate::Error;
+use super::super::{
+    BusOperation, DelayNs, Error, Ism330dhcx, RegisterOperation, SensorOperation, bisync,
+    register::SensHubBank,
+};
+
 use bitfield_struct::bitfield;
 use derive_more::TryFrom;
-use embedded_hal::delay::DelayNs;
-
 use st_mem_bank_macro::register;
-
-use super::SensHubBankState;
 
 #[repr(u8)]
 #[derive(Clone, Copy, PartialEq)]
@@ -184,7 +183,7 @@ pub enum SensHubReg {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = SensHubReg::SensorHub1, access_type = SensHubBankState, generics = 2)]
+#[register(address = SensHubReg::SensorHub1, access_type = "Ism330dhcx<B, T, SensHubBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct SensorHubReg {
@@ -199,7 +198,7 @@ pub struct SensorHubReg {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = SensHubReg::MasterConfig, access_type = SensHubBankState, generics = 2)]
+#[register(address = SensHubReg::MasterConfig, access_type = "Ism330dhcx<B, T, SensHubBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct MasterConfig {
@@ -226,7 +225,7 @@ pub struct MasterConfig {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = SensHubReg::Slv0Add, access_type = SensHubBankState, generics = 2)]
+#[register(address = SensHubReg::Slv0Add, access_type = "Ism330dhcx<B, T, SensHubBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Slv0Add {
@@ -243,7 +242,7 @@ pub struct Slv0Add {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = SensHubReg::Slv0Subadd, access_type = SensHubBankState, generics = 2)]
+#[register(address = SensHubReg::Slv0Subadd, access_type = "Ism330dhcx<B, T, SensHubBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Slv0Subadd {
@@ -258,7 +257,7 @@ pub struct Slv0Subadd {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = SensHubReg::Slv0Config, access_type = SensHubBankState, generics = 2)]
+#[register(address = SensHubReg::Slv0Config, access_type = "Ism330dhcx<B, T, SensHubBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Slv0Config {
@@ -279,7 +278,7 @@ pub struct Slv0Config {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = SensHubReg::Slv1Add, access_type = SensHubBankState, generics = 2)]
+#[register(address = SensHubReg::Slv1Add, access_type = "Ism330dhcx<B, T, SensHubBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Slv1Add {
@@ -296,7 +295,7 @@ pub struct Slv1Add {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = SensHubReg::Slv1Subadd, access_type = SensHubBankState, generics = 2)]
+#[register(address = SensHubReg::Slv1Subadd, access_type = "Ism330dhcx<B, T, SensHubBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Slv1Subadd {
@@ -311,7 +310,7 @@ pub struct Slv1Subadd {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = SensHubReg::Slv1Config, access_type = SensHubBankState, generics = 2)]
+#[register(address = SensHubReg::Slv1Config, access_type = "Ism330dhcx<B, T, SensHubBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Slv1Config {
@@ -330,7 +329,7 @@ pub struct Slv1Config {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = SensHubReg::Slv2Add, access_type = SensHubBankState, generics = 2)]
+#[register(address = SensHubReg::Slv2Add, access_type = "Ism330dhcx<B, T, SensHubBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Slv2Add {
@@ -347,7 +346,7 @@ pub struct Slv2Add {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = SensHubReg::Slv2Subadd, access_type = SensHubBankState, generics = 2)]
+#[register(address = SensHubReg::Slv2Subadd, access_type = "Ism330dhcx<B, T, SensHubBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Slv2Subadd {
@@ -362,7 +361,7 @@ pub struct Slv2Subadd {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = SensHubReg::Slv2Config, access_type = SensHubBankState, generics = 2)]
+#[register(address = SensHubReg::Slv2Config, access_type = "Ism330dhcx<B, T, SensHubBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Slv2Config {
@@ -381,7 +380,7 @@ pub struct Slv2Config {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = SensHubReg::Slv3Add, access_type = SensHubBankState, generics = 2)]
+#[register(address = SensHubReg::Slv3Add, access_type = "Ism330dhcx<B, T, SensHubBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Slv3Add {
@@ -398,7 +397,7 @@ pub struct Slv3Add {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = SensHubReg::Slv3Subadd, access_type = SensHubBankState, generics = 2)]
+#[register(address = SensHubReg::Slv3Subadd, access_type = "Ism330dhcx<B, T, SensHubBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Slv3Subadd {
@@ -413,7 +412,7 @@ pub struct Slv3Subadd {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = SensHubReg::Slv3Config, access_type = SensHubBankState, generics = 2)]
+#[register(address = SensHubReg::Slv3Config, access_type = "Ism330dhcx<B, T, SensHubBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct Slv3Config {
@@ -432,7 +431,7 @@ pub struct Slv3Config {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = SensHubReg::DatawriteSlv0, access_type = SensHubBankState, generics = 2)]
+#[register(address = SensHubReg::DatawriteSlv0, access_type = "Ism330dhcx<B, T, SensHubBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct DatawriteSlv0 {
@@ -447,7 +446,7 @@ pub struct DatawriteSlv0 {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[register(address = SensHubReg::StatusMaster, access_type = SensHubBankState, generics = 2)]
+#[register(address = SensHubReg::StatusMaster, access_type = "Ism330dhcx<B, T, SensHubBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct StatusMaster {

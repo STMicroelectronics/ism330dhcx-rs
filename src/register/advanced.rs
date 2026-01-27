@@ -1,11 +1,10 @@
-use crate::BusOperation;
-use crate::EmbAdvFunctions;
-use crate::Error;
-use bitfield_struct::bitfield;
-use embedded_hal::delay::DelayNs;
-use st_mem_bank_macro::adv_register;
+use super::super::{
+    BusOperation, DelayNs, EmbAdvFunctions, Error, Ism330dhcx, RegisterOperation, bisync,
+    register::MainBank,
+};
 
-use crate::Ism330dhcx;
+use bitfield_struct::bitfield;
+use st_mem_bank_macro::adv_register;
 
 #[repr(u16)]
 pub enum AdvPage {
@@ -169,7 +168,7 @@ pub enum EmbAdvReg1 {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[adv_register(base_address = AdvPage::_0, address = EmbAdvReg0::MagCfgA, access_type = Ism330dhcx, generics = 2)]
+#[adv_register(base_address = AdvPage::_0, address = EmbAdvReg0::MagCfgA, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct MagCfgA {
@@ -190,7 +189,7 @@ pub struct MagCfgA {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[adv_register(base_address = AdvPage::_0, address = EmbAdvReg0::MagCfgB, access_type = Ism330dhcx, generics = 2)]
+#[adv_register(base_address = AdvPage::_0, address = EmbAdvReg0::MagCfgB, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct MagCfgB {
@@ -200,7 +199,7 @@ pub struct MagCfgB {
     not_used_01: u8,
 }
 
-#[adv_register(base_address = AdvPage::_0, address = EmbAdvReg0::MagSensitivityL, access_type = Ism330dhcx, generics = 2)]
+#[adv_register(base_address = AdvPage::_0, address = EmbAdvReg0::MagSensitivityL, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u16, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u16, order = Lsb))]
 pub struct MagSensitivity {
@@ -208,14 +207,14 @@ pub struct MagSensitivity {
     pub mag_s: u16,
 }
 
-#[adv_register(base_address = AdvPage::_0, address = EmbAdvReg0::MagOffxL, access_type = Ism330dhcx, generics = 2)]
+#[adv_register(base_address = AdvPage::_0, address = EmbAdvReg0::MagOffxL, access_type = "Ism330dhcx<B, T, MainBank>")]
 pub struct MagOffXYZ(pub [i16; 3]);
 
 /// XX XY XZ YY YZ ZZ
-#[adv_register(base_address = AdvPage::_0, address = EmbAdvReg0::MagSiXxL, access_type = Ism330dhcx, generics = 2)]
+#[adv_register(base_address = AdvPage::_0, address = EmbAdvReg0::MagSiXxL, access_type = "Ism330dhcx<B, T, MainBank>")]
 pub struct MagSiMatrix(pub [u16; 6]);
 
-#[adv_register(base_address = AdvPage::_1, address = EmbAdvReg1::FsmLcTimeoutL, access_type = Ism330dhcx, generics = 2)]
+#[adv_register(base_address = AdvPage::_1, address = EmbAdvReg1::FsmLcTimeoutL, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u16, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u16, order = Lsb))]
 pub struct FsmLcTimeout {
@@ -223,7 +222,7 @@ pub struct FsmLcTimeout {
     pub fsm_lc_timeout: u16,
 }
 
-#[adv_register(base_address = AdvPage::_1, address = EmbAdvReg1::FsmPrograms, access_type = Ism330dhcx, generics = 2)]
+#[adv_register(base_address = AdvPage::_1, address = EmbAdvReg1::FsmPrograms, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct FsmPrograms {
@@ -231,7 +230,7 @@ pub struct FsmPrograms {
     pub fsm_prog: u8,
 }
 
-#[adv_register(base_address = AdvPage::_1, address = EmbAdvReg1::FsmStartAddL, access_type = Ism330dhcx, generics = 2)]
+#[adv_register(base_address = AdvPage::_1, address = EmbAdvReg1::FsmStartAddL, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u16, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u16, order = Lsb))]
 pub struct FsmStartAdd {
@@ -246,7 +245,7 @@ pub struct FsmStartAdd {
 /// The bit order for this struct can be configured using the `bit_order_msb` feature:
 /// * `Msb`: Most significant bit first.
 /// * `Lsb`: Least significant bit first (default).
-#[adv_register(base_address = AdvPage::_1, address = EmbAdvReg1::PedoCmdReg, access_type = Ism330dhcx, generics = 2)]
+#[adv_register(base_address = AdvPage::_1, address = EmbAdvReg1::PedoCmdReg, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct PedoCmdReg {
@@ -258,7 +257,7 @@ pub struct PedoCmdReg {
     not_used_02: u8,
 }
 
-#[adv_register(base_address = AdvPage::_1, address = EmbAdvReg1::PedoDebStepsConf, access_type = Ism330dhcx, generics = 2)]
+#[adv_register(base_address = AdvPage::_1, address = EmbAdvReg1::PedoDebStepsConf, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u8, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u8, order = Lsb))]
 pub struct PedoDebStepsConf {
@@ -266,7 +265,7 @@ pub struct PedoDebStepsConf {
     pub deb_step: u8,
 }
 
-#[adv_register(base_address = AdvPage::_1, address = EmbAdvReg1::PedoScDeltatL, access_type = Ism330dhcx, generics = 2)]
+#[adv_register(base_address = AdvPage::_1, address = EmbAdvReg1::PedoScDeltatL, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u16, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u16, order = Lsb))]
 pub struct PedoScDeltat {
@@ -274,7 +273,7 @@ pub struct PedoScDeltat {
     pub pd_sc: u16,
 }
 
-#[adv_register(base_address = AdvPage::_1, address = EmbAdvReg1::MlcMagSensitivityL, access_type = Ism330dhcx, generics = 2)]
+#[adv_register(base_address = AdvPage::_1, address = EmbAdvReg1::MlcMagSensitivityL, access_type = "Ism330dhcx<B, T, MainBank>")]
 #[cfg_attr(feature = "bit_order_msb", bitfield(u16, order = Msb))]
 #[cfg_attr(not(feature = "bit_order_msb"), bitfield(u16, order = Lsb))]
 pub struct MlcMagSensitivity {
