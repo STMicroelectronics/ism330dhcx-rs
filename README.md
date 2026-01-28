@@ -46,9 +46,28 @@ cargo add ism330dhcx-rs
 
 ## Usage
 
-Include the crate and its prelude
+By default, the create exposes the **asynchronous** API, and it could be included using:
 ```rust
-use ism330dhcx_rs as ism330dhcx;
+use ism330dhcx_rs::asynchronous as ism330dhcx;
+use ism330dhcx::*;
+use ism330dhcx::prelude::*;
+```
+
+### Blocking API (optional feature)
+
+To use the **blocking** API instead of the asynchronous one, disable default features and enable the `blocking` feature in your Cargo.toml
+```toml
+[dependencies]
+ism330dhcx-rs = { version = "2.0.0", default-features = false, features = ["blocking"] }
+```
+or from the terminal:
+```sh
+cargo add ism330dhcx-rs --no-default-features --features blocking
+```
+
+Then import the blocking API:
+```rust
+use ism330dhcx_rs::blocking as ism330dhcx;
 use ism330dhcx::*;
 use ism330dhcx::prelude::*;
 ```
