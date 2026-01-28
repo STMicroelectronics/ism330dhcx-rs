@@ -2,6 +2,15 @@ use super::{
     BusOperation, DelayNs, EmbAdvFunctions, I2c, MemBankFunctions, RegisterOperation,
     SensorOperation, SevenBitAddress, SpiDevice, bisync, i2c, prelude::*, register::BankState, spi,
 };
+#[cfg(feature = "passthrough")]
+use super::{only_async, only_sync};
+
+#[cfg(feature = "passthrough")]
+#[only_sync]
+use core::cell::RefCell;
+#[cfg(feature = "passthrough")]
+#[only_sync]
+use core::cell::RefMut;
 
 use core::fmt::Debug;
 use core::marker::PhantomData;
@@ -5369,7 +5378,288 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     }
 }
 
-/// @brief  Convert raw data from full-scale �2g to milligrams.
+#[cfg(feature = "passthrough")]
+#[only_sync]
+pub struct Ism330dhcxMaster<B, T>
+where
+    B: BusOperation,
+    T: DelayNs,
+{
+    pub sensor: RefCell<Ism330dhcx<B, T, MainBank>>,
+}
+
+#[cfg(feature = "passthrough")]
+#[only_sync]
+impl<B: BusOperation, T: DelayNs> Ism330dhcxMaster<B, T> {
+    pub fn from_bus(bus: B, tim: T) -> Self {
+        Self {
+            sensor: RefCell::new(Ism330dhcx::from_bus(bus, tim)),
+        }
+    }
+
+    pub fn borrow_mut(&self) -> RefMut<'_, Ism330dhcx<B, T, MainBank>> {
+        self.sensor.borrow_mut()
+    }
+
+    /// Generates a wrapper for the sensor to enable its use as a passthrough
+    /// from another sensor.
+    ///
+    /// The Sensor Hub may require this setup to redirect writes from the
+    /// bus to the sensor that executes them as a passthrough.
+    pub fn as_passthrough<'a>(
+        &'a self,
+        address: SevenBitAddress,
+    ) -> Ism330dhcxPassthrough<'a, B, T> {
+        Ism330dhcxPassthrough {
+            sensor: &self.sensor,
+            slave_address: address,
+        }
+    }
+}
+
+#[cfg(feature = "passthrough")]
+/// Struct to handle Sensor to do the passthrough write and read for the
+/// slave sensor.
+///
+/// Do not use it as is, call the as_passthrough function on the Ism330dhcx instance
+#[only_sync]
+pub struct Ism330dhcxPassthrough<'a, B, T>
+where
+    B: BusOperation,
+    T: DelayNs,
+{
+    sensor: &'a RefCell<Ism330dhcx<B, T, MainBank>>,
+    slave_address: SevenBitAddress,
+}
+
+#[cfg(feature = "passthrough")]
+// ISM330DHCX acts like a bus when used for the sensor hub.
+#[only_sync]
+impl<B, T> BusOperation for Ism330dhcxPassthrough<'_, B, T>
+where
+    B: BusOperation,
+    T: DelayNs,
+{
+    type Error = Error<B::Error>;
+
+    fn read_bytes(&mut self, _rbuf: &mut [u8]) -> Result<(), Self::Error> {
+        panic!("operation not implemented");
+    }
+
+    fn write_bytes(&mut self, wbuf: &[u8]) -> Result<(), Self::Error> {
+        let mut master = self.sensor.borrow_mut();
+        for i in 1_u8..(wbuf.len() as u8) {
+            // Configure Sensor Hub to read data
+            let sh_cfg_write = ShCfgWrite {
+                slv0_add: self.slave_address,
+                slv0_subadd: wbuf[0] + i - 1,
+                slv0_data: wbuf[i as usize],
+            };
+            master.sh_cfg_write(&sh_cfg_write)?;
+
+            // Disable accelerometer
+            master.xl_data_rate_set(OdrXl::Off)?;
+            // Enable I2C Master
+            master.sh_master_set(PROPERTY_ENABLE)?;
+            // Enable accelerometer to trigger Sensor Hub operation.
+            master.xl_data_rate_set(OdrXl::_104hz)?;
+
+            // Wait Sensor Hub operation flag set.
+            master.acceleration_raw_get()?; // dummy read
+            loop {
+                let drdy = master.xl_flag_data_ready_get()?;
+                if drdy == 1 {
+                    break;
+                }
+            }
+
+            let mut master_status;
+            loop {
+                master_status = master.sh_status_get()?;
+                if master_status.sens_hub_endop() == 1 {
+                    break;
+                }
+            }
+
+            // Disable I2C master and XL (triger).
+            master.sh_master_set(PROPERTY_DISABLE)?;
+            master.xl_data_rate_set(OdrXl::Off)?;
+        }
+
+        Ok(())
+    }
+
+    fn write_byte_read_bytes(
+        &mut self,
+        wbuf: &[u8; 1],
+        rbuf: &mut [u8],
+    ) -> Result<(), Self::Error> {
+        let mut master = self.sensor.borrow_mut();
+        // Disable accelerometer
+        master.xl_data_rate_set(OdrXl::Off)?;
+        // Configure Sensor Hub to read
+        let sh_cfg_read = ShCfgRead {
+            slv_add: self.slave_address,
+            slv_subadd: wbuf[0],
+            slv_len: rbuf.len() as u8,
+        };
+        master.sh_slv0_cfg_read(&sh_cfg_read)?; // dummy read
+        master.sh_slave_connected_set(AuxSensOn::Slv0)?;
+
+        // Set write_once bit
+        master.sh_write_mode_set(WriteOnce::OnlyFirstCycle)?;
+
+        // Enable I2C Master
+        master.sh_master_set(PROPERTY_ENABLE)?;
+
+        // Enable accelerometer to trigger Sensor Hub operation
+        master.xl_data_rate_set(OdrXl::_104hz)?;
+
+        // Wait Sensor Hub operation flag set
+        let _ = master.acceleration_raw_get()?;
+        loop {
+            let drdy = master.xl_flag_data_ready_get()?;
+            if drdy == 1 {
+                break;
+            }
+        }
+        let mut master_status;
+        loop {
+            master_status = master.sh_status_get()?;
+            if master_status.sens_hub_endop() == 1 {
+                break;
+            }
+        }
+
+        // Disable I2C master and XL (trigger)
+        master.sh_master_set(PROPERTY_DISABLE)?;
+        master.xl_data_rate_set(OdrXl::Off)?;
+
+        master.sh_read_data_raw_get(rbuf, rbuf.len() as u8)
+    }
+}
+
+#[cfg(feature = "passthrough")]
+/// Struct to handle Sensor to do the passthrough write and read for the
+/// slave sensor.
+#[only_async]
+pub struct Ism330dhcxPassthrough<'a, B, T>
+where
+    B: BusOperation,
+    T: DelayNs,
+{
+    sensor: &'a mut Ism330dhcx<B, T, MainBank>,
+    slave_address: SevenBitAddress,
+}
+
+#[cfg(feature = "passthrough")]
+// ISM330DHCX acts like a bus when used for the sensor hub.
+#[only_async]
+impl<B, T> BusOperation for Ism330dhcxPassthrough<'_, B, T>
+where
+    B: BusOperation,
+    T: DelayNs,
+{
+    type Error = Error<B::Error>;
+
+    async fn read_bytes(&mut self, _rbuf: &mut [u8]) -> Result<(), Self::Error> {
+        panic!("operation not implemented");
+    }
+
+    async fn write_bytes(&mut self, wbuf: &[u8]) -> Result<(), Self::Error> {
+        let master = &mut self.sensor;
+        for i in 1_u8..(wbuf.len() as u8) {
+            // Configure Sensor Hub to read data
+            let sh_cfg_write = ShCfgWrite {
+                slv0_add: self.slave_address,
+                slv0_subadd: wbuf[0] + i - 1,
+                slv0_data: wbuf[i as usize],
+            };
+            master.sh_cfg_write(&sh_cfg_write).await?;
+
+            // Disable accelerometer
+            master.xl_data_rate_set(OdrXl::Off).await?;
+            // Enable I2C Master
+            master.sh_master_set(PROPERTY_ENABLE).await?;
+            // Enable accelerometer to trigger Sensor Hub operation.
+            master.xl_data_rate_set(OdrXl::_104hz).await?;
+
+            // Wait Sensor Hub operation flag set.
+            master.acceleration_raw_get().await?; // dummy read
+            loop {
+                let drdy = master.xl_flag_data_ready_get().await?;
+                if drdy == 1 {
+                    break;
+                }
+            }
+
+            let mut master_status;
+            loop {
+                master_status = master.sh_status_get().await?;
+                if master_status.sens_hub_endop() == 1 {
+                    break;
+                }
+            }
+
+            // Disable I2C master and XL (triger).
+            master.sh_master_set(PROPERTY_DISABLE).await?;
+            master.xl_data_rate_set(OdrXl::Off).await?;
+        }
+
+        Ok(())
+    }
+
+    async fn write_byte_read_bytes(
+        &mut self,
+        wbuf: &[u8; 1],
+        rbuf: &mut [u8],
+    ) -> Result<(), Self::Error> {
+        let master = &mut self.sensor;
+        // Disable accelerometer
+        master.xl_data_rate_set(OdrXl::Off).await?;
+        // Configure Sensor Hub to read
+        let sh_cfg_read = ShCfgRead {
+            slv_add: self.slave_address,
+            slv_subadd: wbuf[0],
+            slv_len: rbuf.len() as u8,
+        };
+        master.sh_slv0_cfg_read(&sh_cfg_read).await?; // dummy read
+        master.sh_slave_connected_set(AuxSensOn::Slv0).await?;
+
+        // Set write_once bit
+        master.sh_write_mode_set(WriteOnce::OnlyFirstCycle).await?;
+
+        // Enable I2C Master
+        master.sh_master_set(PROPERTY_ENABLE).await?;
+
+        // Enable accelerometer to trigger Sensor Hub operation
+        master.xl_data_rate_set(OdrXl::_104hz).await?;
+
+        // Wait Sensor Hub operation flag set
+        let _ = master.acceleration_raw_get().await?;
+        loop {
+            let drdy = master.xl_flag_data_ready_get().await?;
+            if drdy == 1 {
+                break;
+            }
+        }
+        let mut master_status;
+        loop {
+            master_status = master.sh_status_get().await?;
+            if master_status.sens_hub_endop() == 1 {
+                break;
+            }
+        }
+
+        // Disable I2C master and XL (trigger)
+        master.sh_master_set(PROPERTY_DISABLE).await?;
+        master.xl_data_rate_set(OdrXl::Off).await?;
+
+        master.sh_read_data_raw_get(rbuf, rbuf.len() as u8).await
+    }
+}
+
+/// @brief  Convert raw data from full-scale 2g to milligrams.
 ///
 /// # Arguments
 ///

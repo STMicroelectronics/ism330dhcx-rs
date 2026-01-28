@@ -29,6 +29,7 @@ half = "2.7.1"
 # By default the bit order is assumed ad Least Significant Bit.
 [features]
 default = ["async"]
+passthrough = []
 async = []
 blocking = []
 bit_order_msb = []
