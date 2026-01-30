@@ -1020,8 +1020,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `u16`: Number of steps.
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn number_of_steps_get(&mut self) -> Result<u16, Error<B::Error>> {
-        self.operate_over_emb(async |state| Ok(StepCounter::read(state).await?.step()))
+        self.operate_over_emb(StepCounter::read)
             .await
+            .map(|reg| reg.step())
     }
 
     /// Reset step counter register.
@@ -3689,11 +3690,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `u8`: Change the values of `batch_ext_sens_0_en` in reg `SLV0_CONFIG`.
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn sh_batch_slave_0_get(&mut self) -> Result<u8, Error<B::Error>> {
-        self.operate_over_sh(async |state| {
-            let val = Slv0Config::read(state).await?.batch_ext_sens_0_en();
-            Ok(val)
-        })
-        .await
+        self.operate_over_sh(Slv0Config::read)
+            .await
+            .map(|reg| reg.batch_ext_sens_0_en())
     }
 
     /// Enable FIFO batching data of second slave.
@@ -3724,11 +3723,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `()`
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn sh_batch_slave_1_get(&mut self) -> Result<u8, Error<B::Error>> {
-        self.operate_over_sh(async |state| {
-            let val = Slv1Config::read(state).await?.batch_ext_sens_1_en();
-            Ok(val)
-        })
-        .await
+        self.operate_over_sh(Slv1Config::read)
+            .await
+            .map(|reg| reg.batch_ext_sens_1_en())
     }
 
     /// Enable FIFO batching data of third slave.
@@ -3762,11 +3759,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `()`
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn sh_batch_slave_2_get(&mut self) -> Result<u8, Error<B::Error>> {
-        self.operate_over_sh(async |state| {
-            let val = Slv2Config::read(state).await?.batch_ext_sens_2_en();
-            Ok(val)
-        })
-        .await
+        self.operate_over_sh(Slv2Config::read)
+            .await
+            .map(|reg| reg.batch_ext_sens_2_en())
     }
 
     /// Enable FIFO batching data of fourth slave.
@@ -3801,11 +3796,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `()`
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn sh_batch_slave_3_get(&mut self) -> Result<u8, Error<B::Error>> {
-        self.operate_over_sh(async |state| {
-            let val = Slv3Config::read(state).await?.batch_ext_sens_3_en();
-            Ok(val)
-        })
-        .await
+        self.operate_over_sh(Slv3Config::read)
+            .await
+            .map(|reg| reg.batch_ext_sens_3_en())
     }
 
     /// DEN functionality marking mode.
@@ -4014,11 +4007,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `u8`: Change the values of pedo_en in reg EMB_FUNC_EN_A.
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn pedo_sens_get(&mut self) -> Result<u8, Error<B::Error>> {
-        self.operate_over_emb(async |state| {
-            let emb_func_en_a = EmbFuncEnA::read(state).await?;
-            Ok(emb_func_en_a.pedo_en())
-        })
-        .await
+        self.operate_over_emb(EmbFuncEnA::read)
+            .await
+            .map(|reg| reg.pedo_en())
     }
 
     /// Interrupt status bit for step detection.
@@ -4146,11 +4137,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `u8`: Change the values of sign_motion_en in reg EMB_FUNC_EN_A.
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn motion_sens_get(&mut self) -> Result<u8, Error<B::Error>> {
-        self.operate_over_emb(async |state| {
-            let emb_func_en_a = EmbFuncEnA::read(state).await?;
-            Ok(emb_func_en_a.sign_motion_en())
-        })
-        .await
+        self.operate_over_emb(EmbFuncEnA::read)
+            .await
+            .map(|reg| reg.sign_motion_en())
     }
 
     /// Interrupt status bit for significant motion detection.
@@ -4161,11 +4150,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `u8`: Change the values of is_sigmot in reg EMB_FUNC_STATUS.
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn motion_flag_data_ready_get(&mut self) -> Result<u8, Error<B::Error>> {
-        self.operate_over_emb(async |state| {
-            let emb_func_status = EmbFuncStatus::read(state).await?;
-            Ok(emb_func_status.is_sigmot())
-        })
-        .await
+        self.operate_over_emb(EmbFuncStatus::read)
+            .await
+            .map(|reg| reg.is_sigmot())
     }
 
     /// Enable tilt calculation.
@@ -4195,11 +4182,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `u8`: Change the values of tilt_en in reg EMB_FUNC_EN_A.
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn tilt_sens_get(&mut self) -> Result<u8, Error<B::Error>> {
-        self.operate_over_emb(async |state| {
-            let emb_func_en_a = EmbFuncEnA::read(state).await?;
-            Ok(emb_func_en_a.tilt_en())
-        })
-        .await
+        self.operate_over_emb(EmbFuncEnA::read)
+            .await
+            .map(|reg| reg.tilt_en())
     }
 
     /// Interrupt status bit for tilt detection.
@@ -4213,11 +4198,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     /// * `Result`
     ///     * `()`
     pub async fn tilt_flag_data_ready_get(&mut self) -> Result<u8, Error<B::Error>> {
-        self.operate_over_emb(async |state| {
-            let emb_func_status = EmbFuncStatus::read(state).await?;
-            Ok(emb_func_status.is_tilt())
-        })
-        .await
+        self.operate_over_emb(EmbFuncStatus::read)
+            .await
+            .map(|reg| reg.is_tilt())
     }
 
     /// External magnetometer sensitivity value register.
@@ -4438,11 +4421,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `()`
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn long_cnt_flag_data_ready_get(&mut self) -> Result<u8, Error<B::Error>> {
-        self.operate_over_emb(async |state| {
-            let emb_func_status = EmbFuncStatus::read(state).await?;
-            Ok(emb_func_status.is_fsm_lc())
-        })
-        .await
+        self.operate_over_emb(EmbFuncStatus::read)
+            .await
+            .map(|reg| reg.is_fsm_lc())
     }
 
     /// Embedded final state machine functions mode.
@@ -4473,11 +4454,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `u8`: Get the values of fsm_en in reg EMB_FUNC_EN_B.
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn emb_fsm_en_get(&mut self) -> Result<u8, Error<B::Error>> {
-        self.operate_over_emb(async |state| {
-            let emb_func_en_b = EmbFuncEnB::read(state).await?;
-            Ok(emb_func_en_b.fsm_en())
-        })
-        .await
+        self.operate_over_emb(EmbFuncEnB::read)
+            .await
+            .map(|reg| reg.fsm_en())
     }
 
     /// Embedded final state machine functions mode.
@@ -4561,8 +4540,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `()`
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn long_cnt_get(&mut self) -> Result<u16, Error<B::Error>> {
-        self.operate_over_emb(async |state| Ok(FsmLongCounter::read(state).await?.fsm_lc()))
+        self.operate_over_emb(FsmLongCounter::read)
             .await
+            .map(|reg| reg.fsm_lc())
     }
 
     /// Clear FSM long counter value.
@@ -4597,11 +4577,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `()`
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn long_clr_get(&mut self) -> Result<FsmLcClr, Error<B::Error>> {
-        self.operate_over_emb(async |state| {
-            let reg = FsmLongCounterClear::read(state).await?;
-            Ok(FsmLcClr::try_from(reg.fsm_lc_clr()).unwrap_or_default())
-        })
-        .await
+        self.operate_over_emb(FsmLongCounterClear::read)
+            .await
+            .map(|reg| FsmLcClr::try_from(reg.fsm_lc_clr()).unwrap_or_default())
     }
 
     /// FSM output registers.
@@ -4688,11 +4666,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `u8`: Change the values of fsm_init in reg FSM_INIT.
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn fsm_init_get(&mut self) -> Result<u8, Error<B::Error>> {
-        self.operate_over_emb(async |state| {
-            let reg = EmbFuncInitB::read(state).await?;
-            Ok(reg.fsm_init())
-        })
-        .await
+        self.operate_over_emb(EmbFuncInitB::read)
+            .await
+            .map(|reg| reg.fsm_init())
     }
 
     /// FSM long counter timeout register (r/w). The long counter
@@ -4814,8 +4790,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `u8`: Get the values of mlc_en in reg EMB_FUNC_EN_B.
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn mlc_get(&mut self) -> Result<u8, Error<B::Error>> {
-        self.operate_over_emb(async |state| Ok(EmbFuncEnB::read(state).await?.mlc_en()))
+        self.operate_over_emb(EmbFuncEnB::read)
             .await
+            .map(|reg| reg.mlc_en())
     }
 
     /// Machine Learning Core status register
@@ -4849,11 +4826,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `MlcOdr`: change the values of mlc_odr in
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn mlc_data_rate_get(&mut self) -> Result<MlcOdr, Error<B::Error>> {
-        self.operate_over_emb(async |state| {
-            let reg = EmbFuncOdrCfgC::read(state).await?;
-            Ok(MlcOdr::try_from(reg.mlc_odr()).unwrap_or_default())
-        })
-        .await
+        self.operate_over_emb(EmbFuncOdrCfgC::read)
+            .await
+            .map(|reg| MlcOdr::try_from(reg.mlc_odr()).unwrap_or_default())
     }
 
     /// prgsens_out:  Output value of all MLCx decision trees.
@@ -4954,11 +4929,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `()`
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn sh_slave_connected_get(&mut self) -> Result<AuxSensOn, Error<B::Error>> {
-        self.operate_over_sh(async |state| {
-            let val = MasterConfig::read(state).await?.aux_sens_on();
-            Ok(AuxSensOn::try_from(val).unwrap_or_default())
-        })
-        .await
+        self.operate_over_sh(MasterConfig::read)
+            .await
+            .map(|reg| AuxSensOn::try_from(reg.aux_sens_on()).unwrap_or_default())
     }
 
     /// Sensor hub I2C master enable.
@@ -4989,11 +4962,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `u8`: Change the values of master_on in reg MASTER_CONFIG.
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn sh_master_get(&mut self) -> Result<u8, Error<B::Error>> {
-        self.operate_over_sh(async |state| {
-            let val = MasterConfig::read(state).await?.master_on();
-            Ok(val)
-        })
-        .await
+        self.operate_over_sh(MasterConfig::read)
+            .await
+            .map(|reg| reg.master_on())
     }
 
     /// Master I2C pull-up enable.
@@ -5027,11 +4998,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     /// * `Result`
     ///     * `()`
     pub async fn sh_pin_mode_get(&mut self) -> Result<ShubPuEn, Error<B::Error>> {
-        self.operate_over_sh(async |state| {
-            let val = MasterConfig::read(state).await?.shub_pu_en();
-            Ok(ShubPuEn::try_from(val).unwrap_or_default())
-        })
-        .await
+        self.operate_over_sh(MasterConfig::read)
+            .await
+            .map(|reg| ShubPuEn::try_from(reg.shub_pu_en()).unwrap_or_default())
     }
 
     /// I2C interface pass-through.
@@ -5062,11 +5031,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `u8`: Change the values of pass_through_mode in reg MASTER_CONFIG.
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn sh_pass_through_get(&mut self) -> Result<u8, Error<B::Error>> {
-        self.operate_over_sh(async |state| {
-            let val = MasterConfig::read(state).await?.pass_through_mode();
-            Ok(val)
-        })
-        .await
+        self.operate_over_sh(MasterConfig::read)
+            .await
+            .map(|reg| reg.pass_through_mode())
     }
 
     /// Sensor hub trigger signal selection.
@@ -5101,11 +5068,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `()`
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn sh_syncro_mode_get(&mut self) -> Result<StartConfig, Error<B::Error>> {
-        self.operate_over_sh(async |state| {
-            let val = MasterConfig::read(state).await?.start_config();
-            Ok(StartConfig::try_from(val).unwrap_or_default())
-        })
-        .await
+        self.operate_over_sh(MasterConfig::read)
+            .await
+            .map(|reg| StartConfig::try_from(reg.start_config()).unwrap_or_default())
     }
 
     /// Slave 0 write operation is performed only at the first sensor
@@ -5142,11 +5107,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `()`: No Error.
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn sh_write_mode_get(&mut self) -> Result<WriteOnce, Error<B::Error>> {
-        self.operate_over_sh(async |state| {
-            let val = MasterConfig::read(state).await?.write_once();
-            Ok(WriteOnce::try_from(val).unwrap_or_default())
-        })
-        .await
+        self.operate_over_sh(MasterConfig::read)
+            .await
+            .map(|reg| WriteOnce::try_from(reg.write_once()).unwrap_or_default())
     }
 
     /// Reset Master logic and output registers.
@@ -5174,11 +5137,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     /// * `Result`
     ///     * `()`: Interface status (MANDATORY: return Ok(()) -> no Error).
     pub async fn sh_reset_get(&mut self) -> Result<u8, Error<B::Error>> {
-        self.operate_over_sh(async |state| {
-            let val = MasterConfig::read(state).await?.rst_master_regs();
-            Ok(val)
-        })
-        .await
+        self.operate_over_sh(MasterConfig::read)
+            .await
+            .map(|reg| reg.rst_master_regs())
     }
 
     /// Rate at which the master communicates.
@@ -5212,11 +5173,9 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     /// * `Result`
     ///     * `()`.
     pub async fn sh_data_rate_get(&mut self) -> Result<ShubOdr, Error<B::Error>> {
-        self.operate_over_sh(async |state| {
-            let val = Slv0Config::read(state).await?.shub_odr();
-            Ok(ShubOdr::try_from(val).unwrap_or_default())
-        })
-        .await
+        self.operate_over_sh(Slv0Config::read)
+            .await
+            .map(|reg| ShubOdr::try_from(reg.shub_odr()).unwrap_or_default())
     }
 
     /// Configure slave 0 for perform a write.
@@ -5373,8 +5332,7 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     ///     * `()`
     ///     * `Err`: Returns an error if the operation fails.
     pub async fn sh_status_get(&mut self) -> Result<StatusMaster, Error<B::Error>> {
-        self.operate_over_sh(async |state| StatusMaster::read(state).await)
-            .await
+        self.operate_over_sh(StatusMaster::read).await
     }
 }
 
