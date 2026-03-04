@@ -5327,7 +5327,6 @@ impl<B: BusOperation, T: DelayNs> Ism330dhcx<B, T, MainBank> {
     }
 }
 
-
 #[cfg(feature = "passthrough")]
 /// Ism330dhcxPassthrough
 ///
