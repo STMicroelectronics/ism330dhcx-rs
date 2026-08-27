@@ -17,7 +17,7 @@ description = """
 doctest = false
 
 [dependencies]
-bisync = "0.3.0"
+bisync = { path = "vendor/bisync" }
 bitfield-struct = "0.11.0"
 embedded-hal = "1.0.0"
 embedded-hal-async = "1.0.0"
@@ -25,6 +25,9 @@ derive_more = { version = "2.0.1", default-features = false, features = [ "try_f
 st-mems-bus = "2.0.0"
 st-mem-bank-macro = "2.0.0"
 half = { version = "2.7.1", default-features = false }
+
+[patch.crates-io]
+bisync = { path = "vendor/bisync" }
 
 # Features
 # --------
