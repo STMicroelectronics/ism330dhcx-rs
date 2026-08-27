@@ -101,4 +101,3 @@ pub mod asynchronous {
     /// true in the asynchronous module, otherwise false
     pub const ASYNC: bool = true;
 }
-
