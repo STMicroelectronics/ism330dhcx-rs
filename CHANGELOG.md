@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file.
 
 
 ### Bug Fixes
--  Replace bisync with bisync2 (v0.3.2)
+-  Replace bisync with bisync2 (v0.3.2) by @avisconti
 - (*style*)  Removed one space for cargo fmt by @Gioelio in [#2](https://github.com/STMicroelectronics/ism330dhcx-rs/pull/2)
 - (*deps*)  Add bisync 0.3.1 source (upstream yanked from crates.io) by @Gioelio
 -  Add default-features false for half dependency by @Gioelio
@@ -30,6 +30,7 @@ All notable changes to this project will be documented in this file.
 
 
 ### Miscellaneous Tasks
+- (*release*)  Prepare v2.1.0 by @avisconti
 -  Update README with instructions for running examples by @Gioelio
 
 
@@ -42,6 +43,7 @@ All notable changes to this project will be documented in this file.
 - [#2](https://github.com/STMicroelectronics/ism330dhcx-rs/pull/2) - Removed one space for cargo fmt
 
 ### New Contributors
+* @avisconti made their first contribution
 * @github-actions[bot] made their first contribution
 
 ## [2.0.0] - 2026-01-30
